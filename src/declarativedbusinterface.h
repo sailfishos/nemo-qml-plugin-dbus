@@ -49,6 +49,7 @@ class DeclarativeDBusInterface : public QObject, public QQmlParserStatus
     Q_PROPERTY(QString iface READ interface WRITE setInterface NOTIFY interfaceChanged)
     Q_PROPERTY(DeclarativeDBus::BusType bus READ bus WRITE setBus NOTIFY busChanged)
     Q_PROPERTY(bool signalsEnabled READ signalsEnabled WRITE setSignalsEnabled NOTIFY signalsEnabledChanged)
+    Q_PROPERTY(bool propertiesEnabled READ propertiesEnabled WRITE setPropertiesEnabled NOTIFY propertiesEnabledChanged)
 
     Q_INTERFACES(QQmlParserStatus)
 
@@ -71,7 +72,17 @@ public:
     bool signalsEnabled() const;
     void setSignalsEnabled(bool enabled);
 
-    Q_INVOKABLE void call(const QString &method, const QJSValue &arguments);
+    bool signalsConnected() const;
+
+    bool propertiesEnabled() const;
+    void setPropertiesEnabled(bool enabled);
+
+    void propertiesConnected() const;
+
+    Q_INVOKABLE void call(const QString &method,
+                const QJSValue &arguments = QJSValue::UndefinedValue,
+                const QJSValue &callback = QJSValue::UndefinedValue,
+                const QJSValue &errorCallback = QJSValue::UndefinedValue);
     Q_INVOKABLE bool typedCall(const QString &method, const QJSValue &arguments,
             const QJSValue &callback=QJSValue::UndefinedValue,
             const QJSValue &errorCallback=QJSValue::UndefinedValue);
@@ -82,7 +93,7 @@ public:
     void classBegin();
     void componentComplete();
 
-    static QVariant parse(const QDBusArgument &argument);
+    static QVariant unwind(const QVariant &val, int depth = 0);
     static QVariantList argumentsFromScriptValue(const QJSValue &arguments);
 
 signals:
@@ -91,18 +102,28 @@ signals:
     void interfaceChanged();
     void busChanged();
     void signalsEnabledChanged();
+    void propertiesEnabledChanged();
     void propertiesChanged();
 
 private slots:
     void pendingCallFinished(QDBusPendingCallWatcher *watcher);
     void signalHandler(const QDBusMessage &message);
-    void connectSignalHandlerCallback(const QString &introspectionData);
-    void notifyPropertyChange();
+    void introspectionDataReceived(const QString &introspectionData);
+    void notifyPropertyChange(const QDBusMessage &message);
+    void propertyValuesReceived(const QDBusMessage &message);
 
 private:
+    void invalidateIntrospection();
+    void introspect();
+    bool dispatch(
+            const QDBusMessage &message, const QJSValue &callback, const QJSValue &errorCallback);
     void disconnectSignalHandler();
     void connectSignalHandler();
-    QVariant unwind(const QVariant &val, int depth = 0);
+    void disconnectPropertyHandler();
+    void connectPropertyHandler();
+    void queryPropertyValues();
+    void updatePropertyValues(const QDBusArgument &values);
+
     bool marshallDBusArgument(QDBusMessage &msg, const QJSValue &arg);
     QDBusMessage constructMessage(const QString &service,
                                   const QString &path,
@@ -116,8 +137,14 @@ private:
     DeclarativeDBus::BusType m_bus;
     QMap<QDBusPendingCallWatcher *, QPair<QJSValue, QJSValue> > m_pendingCalls; // pair: success and error callback
     QMap<QString, QMetaMethod> m_signals;
+    QMap<QString, QMetaProperty> m_properties;
     bool m_componentCompleted;
     bool m_signalsEnabled;
+    bool m_signalsConnected;
+    bool m_propertiesEnabled;
+    bool m_propertiesConnected;
+    bool m_introspected;
+    bool m_providesPropertyInterface;
 };
 
 #endif

@@ -357,11 +357,7 @@ bool DeclarativeDBusAdaptor::handleMessage(const QDBusMessage &message, const QD
                 if (QLatin1String(property.name()) != member)
                     continue;
 
-                QVariant value = dbusArguments.value(2);
-                if (value.userType() == qMetaTypeId<QDBusArgument>())
-                    value = DeclarativeDBusInterface::parse(value.value<QDBusArgument>());
-                else if (value.userType() == qMetaTypeId<QDBusVariant>())
-                    value = value.value<QDBusVariant>().variant();
+                QVariant value = DeclarativeDBusInterface::unwind(dbusArguments.value(2));
 
                 return property.write(this, value);
             }
@@ -388,25 +384,14 @@ bool DeclarativeDBusAdaptor::handleMessage(const QDBusMessage &message, const QD
 
         int argumentCount = 0;
         for (; argumentCount < 10 && argumentCount < dbusArguments.count(); ++argumentCount) {
-            variants[argumentCount] = dbusArguments.at(argumentCount);
+            variants[argumentCount] = DeclarativeDBusInterface::unwind(dbusArguments.at(argumentCount));
             QVariant &argument = variants[argumentCount];
-
-            // If the variant type is a QBusArgument attempt to parse its contents.
-            if (argument.userType() == qMetaTypeId<QDBusArgument>()) {
-                argument = DeclarativeDBusInterface::parse(argument.value<QDBusArgument>());
-            }
 
             const QByteArray parameterType = parameterTypes.at(argumentCount);
             if (parameterType == "QVariant") {
                 arguments[argumentCount] = QGenericArgument("QVariant", &argument);
             } else if (parameterType == argument.typeName()) {
                 arguments[argumentCount] = QGenericArgument(argument.typeName(), argument.data());
-            } else if (parameterType == "QString" && argument.userType() == qMetaTypeId<QDBusObjectPath>()) {
-                // QDBusObjectPath is not exported to QML, use QString instead.
-                arguments[argumentCount] = Q_ARG(QString, argument.value<QDBusObjectPath>().path());
-            } else if (parameterType == "QString" && argument.userType() == qMetaTypeId<QDBusSignature>()) {
-                // QDBusSignature is not exported to QML, use QString instead.
-                arguments[argumentCount] = Q_ARG(QString, argument.value<QDBusSignature>().signature());
             } else {
                 // Type mismatch, there may be another overload.
                 break;
