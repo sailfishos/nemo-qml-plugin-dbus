@@ -139,7 +139,15 @@ const QLatin1String PropertyInterface("org.freedesktop.DBus.Properties");
 }
 
 DeclarativeDBusInterface::DeclarativeDBusInterface(QObject *parent)
-:   QObject(parent), m_bus(DeclarativeDBus::SessionBus), m_componentCompleted(false), m_signalsEnabled(false)
+    : QObject(parent)
+    , m_bus(DeclarativeDBus::SessionBus)
+    , m_componentCompleted(false)
+    , m_signalsEnabled(false)
+    , m_signalsConnected(false)
+    , m_propertiesEnabled(false)
+    , m_propertiesConnected(false)
+    , m_introspected(false)
+    , m_providesPropertyInterface(false)
 {
 }
 
@@ -162,12 +170,13 @@ QString DeclarativeDBusInterface::service() const
 void DeclarativeDBusInterface::setService(const QString &service)
 {
     if (m_service != service) {
-        disconnectSignalHandler();
+        invalidateIntrospection();
 
         m_service = service;
         emit serviceChanged();
 
         connectSignalHandler();
+        connectPropertyHandler();
     }
 }
 
@@ -184,12 +193,13 @@ QString DeclarativeDBusInterface::path() const
 void DeclarativeDBusInterface::setPath(const QString &path)
 {
     if (m_path != path) {
-        disconnectSignalHandler();
+        invalidateIntrospection();
 
         m_path = path;
         emit pathChanged();
 
         connectSignalHandler();
+        connectPropertyHandler();
     }
 }
 
@@ -206,12 +216,13 @@ QString DeclarativeDBusInterface::interface() const
 void DeclarativeDBusInterface::setInterface(const QString &interface)
 {
     if (m_interface != interface) {
-        disconnectSignalHandler();
+        invalidateIntrospection();
 
         m_interface = interface;
         emit interfaceChanged();
 
         connectSignalHandler();
+        connectPropertyHandler();
     }
 }
 
@@ -233,12 +244,13 @@ DeclarativeDBus::BusType DeclarativeDBusInterface::bus() const
 void DeclarativeDBusInterface::setBus(DeclarativeDBus::BusType bus)
 {
     if (m_bus != bus) {
-        disconnectSignalHandler();
+        invalidateIntrospection();
 
         m_bus = bus;
         emit busChanged();
 
         connectSignalHandler();
+        connectPropertyHandler();
     }
 }
 
@@ -263,6 +275,25 @@ void DeclarativeDBusInterface::setSignalsEnabled(bool enabled)
         emit signalsEnabledChanged();
 
         connectSignalHandler();
+    }
+}
+
+bool DeclarativeDBusInterface::propertiesEnabled() const
+{
+    return m_propertiesEnabled;
+}
+
+void DeclarativeDBusInterface::setPropertiesEnabled(bool enabled)
+{
+    if (m_propertiesEnabled != enabled) {
+        if (!m_signalsEnabled)
+            disconnectPropertyHandler();
+
+        m_propertiesEnabled = enabled;
+        emit propertiesEnabledChanged();
+
+        queryPropertyValues();  // connectPropertyHandler will call this as well.  This just cover the case where connectPropertyHandler was previously called and m_propertiesEnabled was false.
+        connectPropertyHandler();
     }
 }
 
@@ -292,12 +323,21 @@ QVariantList DeclarativeDBusInterface::argumentsFromScriptValue(const QJSValue &
     Call a D-Bus method with the name \a method on the object with \a arguments as either a single
     value or an array. For a function with no arguments, pass in \c undefined.
 
+    When the function returns, call \a callback with a single argument that is the return value. The
+    \a callback argument is optional, if set to \c undefined (the default), the return value will be
+    discarded. If the function fails \a errorCallback is called if it is not set to \c undefined
+    (the default).
+
     \note This function supports passing basic data types and will fail if the signature of the
           remote method does not match the signature determined from the type of \a arguments. The
           \l typedCall() function can be used to explicity specify the type of each element of
           \a arguments.
 */
-void DeclarativeDBusInterface::call(const QString &method, const QJSValue &arguments)
+void DeclarativeDBusInterface::call(
+        const QString &method,
+        const QJSValue &arguments,
+        const QJSValue &callback,
+        const QJSValue &errorCallback)
 {
     QVariantList dbusArguments = argumentsFromScriptValue(arguments);
 
@@ -308,10 +348,7 @@ void DeclarativeDBusInterface::call(const QString &method, const QJSValue &argum
                 method);
     message.setArguments(dbusArguments);
 
-    QDBusConnection conn = DeclarativeDBus::connection(m_bus);
-
-    if (!conn.send(message))
-        qmlInfo(this) << conn.lastError();
+    dispatch(message, callback, errorCallback);
 }
 
 template<typename T> static QList<T> toQList(const QVariantList &lst)
@@ -576,60 +613,6 @@ DeclarativeDBusInterface::constructMessage(const QString &service,
     return message;
 }
 
-QVariant DeclarativeDBusInterface::parse(const QDBusArgument &argument)
-{
-    switch (argument.currentType()) {
-    case QDBusArgument::BasicType: {
-        QVariant v = argument.asVariant();
-        if (v.userType() == qMetaTypeId<QDBusObjectPath>())
-            return v.value<QDBusObjectPath>().path();
-        else if (v.userType() == qMetaTypeId<QDBusSignature>())
-            return v.value<QDBusSignature>().signature();
-        else
-            return v;
-    }
-    case QDBusArgument::VariantType: {
-        QVariant v = argument.asVariant().value<QDBusVariant>().variant();
-        if (v.userType() == qMetaTypeId<QDBusArgument>())
-            return parse(v.value<QDBusArgument>());
-        else
-            return v;
-    }
-    case QDBusArgument::ArrayType: {
-        QVariantList list;
-        argument.beginArray();
-        while (!argument.atEnd())
-            list.append(parse(argument));
-        argument.endArray();
-        return list;
-    }
-    case QDBusArgument::StructureType: {
-        QVariantList list;
-        argument.beginStructure();
-        while (!argument.atEnd())
-            list.append(parse(argument));
-        argument.endStructure();
-        return QVariant::fromValue(list);
-    }
-    case QDBusArgument::MapType: {
-        QVariantMap map;
-        argument.beginMap();
-        while (!argument.atEnd()) {
-            argument.beginMapEntry();
-            QVariant key = parse(argument);
-            QVariant value = parse(argument);
-            map.insert(key.toString(), value);
-            argument.endMapEntry();
-        }
-        argument.endMap();
-        return map;
-    }
-    default:
-        return QVariant();
-        break;
-    }
-}
-
 /*!
     \qmlmethod bool DBusInterface::typedCall(string method, variant arguments, variant callback, variant errorCallback)
 
@@ -660,6 +643,12 @@ bool DeclarativeDBusInterface::typedCall(const QString &method, const QJSValue &
         return false;
     }
 
+    return dispatch(message, callback, errorCallback);
+}
+
+bool DeclarativeDBusInterface::dispatch(
+        const QDBusMessage &message, const QJSValue &callback, const QJSValue &errorCallback)
+{
     QDBusConnection conn = DeclarativeDBus::connection(m_bus);
 
     if (callback.isUndefined()) {
@@ -735,10 +724,11 @@ void DeclarativeDBusInterface::setProperty(const QString &name, const QVariant &
     if (value.userType() == qMetaTypeId<QJSValue>())
         value = value.value<QJSValue>().toVariant();
 
+
     QVariantList args;
     args.append(m_interface);
     args.append(name);
-    args.append(value);
+    args.append(QVariant::fromValue(QDBusVariant(value)));
     message.setArguments(args);
 
     QDBusConnection conn = DeclarativeDBus::connection(m_bus);
@@ -754,6 +744,7 @@ void DeclarativeDBusInterface::componentComplete()
 {
     m_componentCompleted = true;
     connectSignalHandler();
+    connectPropertyHandler();
 }
 
 QVariant DeclarativeDBusInterface::unwind(const QVariant &val, int depth)
@@ -774,7 +765,6 @@ QVariant DeclarativeDBusInterface::unwind(const QVariant &val, int depth)
     if( ++depth > maximum_dept ) {
         /* Leave result to invalid variant */
         qWarning() << "Too deep recursion detected at userType:" << type;
-        qmlInfo(this) << "Too deep recursion detected at userType:" << type;
     }
     else if (type == QVariant::ByteArray ) {
         /* Is built-in type, but does not get correctly converted
@@ -866,7 +856,6 @@ QVariant DeclarativeDBusInterface::unwind(const QVariant &val, int depth)
         default:
             /* Unhandled types produce invalid QVariant */
             qWarning() << "Unhandled QDBusArgument element type:" << elem;
-            qmlInfo(this) << "Unhandled QDBusArgument element type:" << elem;
             break;
         }
     } else {
@@ -874,7 +863,6 @@ QVariant DeclarativeDBusInterface::unwind(const QVariant &val, int depth)
          * types in a form that does not look like a string to qml code. */
         res = val;
         qWarning() << "Unhandled QVariant userType:" << type;
-        qmlInfo(this) << "Unhandled QVariant userType:" << type;
     }
 
     return res;
@@ -931,7 +919,10 @@ void DeclarativeDBusInterface::signalHandler(const QDBusMessage &message)
     for (int i = 0; i < qMin(arguments.length(), 10); ++i) {
         const QVariant &tmp = arguments.at(i);
         normalized.append(unwind(tmp));
-        const QVariant &arg = normalized.last();
+    }
+
+    for (int i = 0; i < normalized.count(); ++i) {
+        const QVariant &arg = normalized.at(i);
         args[i] = Q_ARG(QVariant, arg);
     }
 
@@ -943,10 +934,34 @@ void DeclarativeDBusInterface::signalHandler(const QDBusMessage &message)
                   args[8], args[9]);
 }
 
-void DeclarativeDBusInterface::connectSignalHandlerCallback(const QString &introspectionData)
+static int indexOfMangledName(const QString &name, const QStringList &candidates)
 {
+    int index = candidates.indexOf(name);
+    if (index >= 0) {
+        return index;
+    } else if (name.length() > 2
+                && name.startsWith(QStringLiteral("rc"))
+                && name.at(2).isUpper()) {
+        // API version 1.0 name mangling:
+        // Connect QML signals with the prefix 'rc' followed by an upper-case
+        // letter to DBus signals of the same name minus the prefix.
+        return candidates.indexOf(name.mid(2));
+    } else if (name.length() >= 2) {
+        // API version 2.0 name mangling:
+        //  "methodName" -> "MethodName" (if a corresponding signal exists)
+        return candidates.indexOf(name.at(0).toUpper() + name.mid(1));
+    } else {
+        return -1;
+    }
+}
+
+void DeclarativeDBusInterface::introspectionDataReceived(const QString &introspectionData)
+{
+    invalidateIntrospection();
+    m_introspected = true;
+
     QStringList dbusSignals;
-    bool connectPropertyInterface = false;
+    QStringList dbusProperties;
 
     QXmlStreamReader xml(introspectionData);
     while (!xml.atEnd()) {
@@ -959,11 +974,11 @@ void DeclarativeDBusInterface::connectSignalHandlerCallback(const QString &intro
         bool skip = false;
         if (xml.name() != QLatin1String("interface")) {
             skip = true;
-        } else if (xml.attributes().value(QLatin1String("name")) == PropertyInterface) {
-            connectPropertyInterface = true;
-            skip = true;
-        } else if (xml.attributes().value(QLatin1String("name")) != m_interface) {
-            skip = true;
+        } else {
+            if (xml.attributes().value(QLatin1String("name")) == PropertyInterface) {
+                m_providesPropertyInterface = true;
+            }
+            skip = xml.attributes().value(QLatin1String("name")) != m_interface;
         }
 
         if (skip) {
@@ -977,91 +992,210 @@ void DeclarativeDBusInterface::connectSignalHandlerCallback(const QString &intro
 
             if (xml.name() == QLatin1String("signal"))
                 dbusSignals.append(xml.attributes().value(QLatin1String("name")).toString());
+            if (xml.name() == QLatin1String("property"))
+                dbusProperties.append(xml.attributes().value(QStringLiteral("name")).toString());
 
             xml.skipCurrentElement();
         }
     }
 
-    if (dbusSignals.isEmpty() && !connectPropertyInterface)
+    if (dbusSignals.isEmpty() && dbusProperties.isEmpty() && !m_propertiesEnabled)
         return;
-
-    QDBusConnection conn = DeclarativeDBus::connection(m_bus);
 
     // Skip over signals defined in DeclarativeDBusInterface and its parent classes
     // so only signals defined in qml are connected to.
-    for (int i = staticMetaObject.methodCount(); i < metaObject()->methodCount(); ++i) {
-        QMetaMethod method = metaObject()->method(i);
+    const QMetaObject * const meta = metaObject();
+    for (int i = staticMetaObject.methodCount(); i < meta->methodCount(); ++i) {
+        QMetaMethod method = meta->method(i);
 
-        QString methodName = method.name();
-
-        // API version 1.0 name mangling:
-        // Connect QML signals with the prefix 'rc' followed by an upper-case
-        // letter to DBus signals of the same name minus the prefix.
-        if (methodName.length() > 2
-                && methodName.startsWith(QStringLiteral("rc"))
-                && methodName.at(2).isUpper()) {
-            methodName.remove(0, 2);
-        } else if (methodName.length() >= 2) {
-            // API version 2.0 name mangling:
-            //  "methodName" -> "MethodName" (if a corresponding signal exists)
-            QString methodNameUpperCase = methodName.at(0).toUpper() +
-                methodName.mid(1);
-
-            // Only do name mangling if the lower case version does not exist,
-            // and the upper case version does exist.
-            if (!dbusSignals.contains(methodName) &&
-                 dbusSignals.contains(methodNameUpperCase)) {
-                methodName = methodNameUpperCase;
-            }
-        }
-
-        if (!dbusSignals.contains(methodName))
+        const int index = indexOfMangledName(method.name(), dbusSignals);
+        if (index < 0)
             continue;
 
-        dbusSignals.removeOne(methodName);
+        m_signals.insert(dbusSignals.at(index), method);
 
-        m_signals.insert(methodName, method);
-        conn.connect(m_service, m_path, m_interface, methodName,
-                     this, SLOT(signalHandler(QDBusMessage)));
+        dbusSignals.removeAt(index);
 
         if (dbusSignals.isEmpty())
             break;
     }
 
-    if (connectPropertyInterface) {
-        bool success = conn.connect(m_service, m_path, PropertyInterface, QLatin1String("PropertiesChanged"),
-                                    "sa{sv}as", this, SLOT(notifyPropertyChange()));
-        if (!success) {
-            qmlInfo(this) << "Failed to connect to DBus property interface signaling, service: "
-                          << m_service << " path: " << m_path;
-        }
+    for (int i = staticMetaObject.propertyCount(); i < meta->propertyCount(); ++i) {
+        QMetaProperty property = meta->property(i);
+
+        const int index = indexOfMangledName(property.name(), dbusProperties);
+        if (index < 0)
+            continue;
+
+        m_properties.insert(dbusProperties.at(index), property);
+
+        dbusProperties.removeAt(index);
+
+        if (dbusProperties.isEmpty())
+            break;
     }
+
+    connectSignalHandler();
+    connectPropertyHandler();
 }
 
-void DeclarativeDBusInterface::notifyPropertyChange()
+void DeclarativeDBusInterface::notifyPropertyChange(const QDBusMessage &message)
 {
-    emit propertiesChanged();
+    const QVariantList arguments = message.arguments();
+
+    if (arguments.value(0) == m_interface) {
+        updatePropertyValues(arguments.value(1).value<QDBusArgument>());
+
+        foreach (const QString &name, arguments.value(2).value<QStringList>()) {
+            if (m_properties.contains(name)) {
+                queryPropertyValues();
+                break;
+            }
+        }
+
+        emit propertiesChanged();
+    }
 }
 
 void DeclarativeDBusInterface::disconnectSignalHandler()
 {
-    if (m_signals.isEmpty())
-        return;
+    if (m_signalsConnected) {
+        m_signalsConnected = false;
 
-    QDBusConnection conn = DeclarativeDBus::connection(m_bus);
+        QDBusConnection conn = DeclarativeDBus::connection(m_bus);
 
-    foreach (const QString &signal, m_signals.keys()) {
-        conn.disconnect(m_service, m_path, m_interface, signal,
-                        this, SLOT(signalHandler(QDBusMessage)));
+        foreach (const QString &signal, m_signals.keys()) {
+            conn.disconnect(m_service, m_path, m_interface, signal,
+                            this, SLOT(signalHandler(QDBusMessage)));
+        }
+
+        if (!m_propertiesEnabled) {
+            disconnectPropertyHandler();
+        }
     }
-
-    m_signals.clear();
 }
 
 void DeclarativeDBusInterface::connectSignalHandler()
 {
-    if (!m_componentCompleted || !m_signalsEnabled || m_service.isEmpty() || m_path.isEmpty())
+    if (!m_componentCompleted
+            || m_signalsConnected
+            || !m_signalsEnabled
+            || m_service.isEmpty()
+            || m_path.isEmpty()
+            || m_interface.isEmpty()) {
         return;
+    }
+
+    if (!m_introspected) {
+        introspect();
+    } else if (!m_signals.isEmpty() || m_providesPropertyInterface) {
+        m_signalsConnected = true;
+
+        QDBusConnection conn = DeclarativeDBus::connection(m_bus);
+
+        foreach (const QString &signal, m_signals.keys()) {
+            conn.connect(m_service, m_path, m_interface, signal,
+                            this, SLOT(signalHandler(QDBusMessage)));
+        }
+
+        connectPropertyHandler();
+    }
+}
+
+void DeclarativeDBusInterface::connectPropertyHandler()
+{
+    if (!m_componentCompleted
+                || m_propertiesConnected
+                || (!m_propertiesEnabled && !m_signalsEnabled)
+                || m_service.isEmpty()
+                || m_path.isEmpty()
+                || m_interface.isEmpty()) {
+        return;
+    }
+
+    if (!m_introspected) {
+        introspect();
+    } else if (m_providesPropertyInterface || !m_properties.isEmpty()) {
+        m_propertiesConnected = DeclarativeDBus::connection(m_bus).connect(
+                    m_service,
+                    m_path,
+                    PropertyInterface,
+                    QStringLiteral("PropertiesChanged"),
+                    this,
+                    SLOT(notifyPropertyChange(QDBusMessage)));
+        if (!m_propertiesConnected) {
+            qmlInfo(this) << "Failed to connect to DBus property interface signaling, service: "
+                          << m_service << " path: " << m_path;
+        }
+
+        queryPropertyValues();
+    }
+}
+
+void DeclarativeDBusInterface::disconnectPropertyHandler()
+{
+    if (m_propertiesConnected) {
+        m_propertiesConnected = false;
+
+        DeclarativeDBus::connection(m_bus).disconnect(
+                    m_service,
+                    m_path,
+                    PropertyInterface,
+                    QStringLiteral("PropertiesChanged"),
+                    this,
+                    SLOT(notifyPropertyChange(QDBusMessage)));
+    }
+}
+
+void DeclarativeDBusInterface::queryPropertyValues()
+{
+    if (m_propertiesConnected && m_propertiesEnabled) {
+        QDBusMessage message = QDBusMessage::createMethodCall(
+                    m_service, m_path, PropertyInterface, QStringLiteral("GetAll"));
+        message.setArguments(QVariantList() << m_interface);
+
+        DeclarativeDBus::connection(m_bus).callWithCallback(
+                    message, this, SLOT(propertyValuesReceived(QDBusMessage)));
+    }
+}
+
+void DeclarativeDBusInterface::propertyValuesReceived(const QDBusMessage &message)
+{
+    updatePropertyValues(message.arguments().value(0).value<QDBusArgument>());
+}
+
+void DeclarativeDBusInterface::updatePropertyValues(const QDBusArgument &argument)
+{
+    if (m_propertiesEnabled) {
+        argument.beginMap();
+        while (!argument.atEnd()) {
+            argument.beginMapEntry();
+
+            const QString name = argument.asVariant().toString();
+            QMetaProperty property = m_properties.value(name);
+            if (property.isValid()) {
+                property.write(this, unwind(argument.asVariant()));
+            }
+
+            argument.endMapEntry();
+        }
+    }
+}
+
+void DeclarativeDBusInterface::invalidateIntrospection()
+{
+    disconnectSignalHandler();
+    disconnectPropertyHandler();
+
+    m_introspected = false;
+    m_providesPropertyInterface = false;
+    m_signals.clear();
+    m_properties.clear();
+}
+
+void DeclarativeDBusInterface::introspect()
+{
+    m_introspected = true;
 
     QDBusMessage message =
         QDBusMessage::createMethodCall(m_service, m_path,
@@ -1073,6 +1207,7 @@ void DeclarativeDBusInterface::connectSignalHandler()
 
     QDBusConnection conn = DeclarativeDBus::connection(m_bus);
 
-    if (!conn.callWithCallback(message, this, SLOT(connectSignalHandlerCallback(QString))))
+    if (!conn.callWithCallback(message, this, SLOT(introspectionDataReceived(QString)))) {
         qmlInfo(this) << "Failed to introspect interface" << conn.lastError();
+    }
 }

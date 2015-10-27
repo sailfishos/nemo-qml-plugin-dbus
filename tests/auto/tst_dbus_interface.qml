@@ -264,12 +264,33 @@ TestCase {
         compare(failCount, 0)
     }
 
+    function test_integerProperty() {
+        tryCompare(testsrv, "integer", 12)
+
+        testsrv.setProperty("Integer", 324)
+
+        tryCompare(testsrv, "integer", 324)
+    }
+
+    function test_stringProperty() {
+        tryCompare(testsrv, "string", "hello")
+
+        testsrv.setProperty("String", "goodbye")
+
+        tryCompare(testsrv, "string", "goodbye")
+    }
+
     DBusInterface {
         id:              testsrv
         service:         'org.nemomobile.dbustestd'
         path:            '/'
         iface:           'org.nemomobile.dbustestd'
         signalsEnabled:  true
+        propertiesEnabled: true
+
+        property int integer
+        property string string
+
         function pong(arg) {
             signalData = arg
         }
