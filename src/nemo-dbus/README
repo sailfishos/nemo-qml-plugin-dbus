@@ -1,0 +1,60 @@
+The nemo-dbus library provides C++11 extensions to QtDBus to make it easier to call and handle
+the replies from asynchronous DBus methods.
+
+To use the library in a project add nemodbus to pkgconfig. i.e. in qmake:
+
+PKGCONFIG += nemodbus
+
+The most common way to call a method is to create an instance NemoDBus::Interface and invoke the
+call function, and to receive a reply call the onFinished() function of the returned response
+passing in a lambda that will be invoked when the reply is received:
+
+#include <nemo-dbus/interface.h>
+
+
+class Profile : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString activeProfile READ activeProfile() WRITE setActiveProfile NOTIFY activeProfileChanged)
+public:
+    explicit Caller(QObject *parent = nullptr)
+        : QObject(parent)
+        , m_interface(
+            this,
+            QDBusConnection::sessionBus(),          // connection
+            QStringLiteral("com.nokia.profiled"),   // service
+            QStringLiteral("/com/nokia/profiled),   // path
+            QStringLiteral("com.nokia.profiled"))   // interface
+    {
+        auto response = m_interface.call(QStringLiteral("get_profile"));
+
+        response->onFinished([this](const QString &profile) {
+            m_activeProfile = profile;
+            emit activeProfileChanged();
+        });
+    }
+
+    QString activeProfile() const
+    {
+        return m_activeProfile;
+    }
+
+    void setActiveProfile(const QString &profile)
+    {
+        if (m_activeProfile != profile) {
+            auto response = m_interface.call(QStringLiteral("set_profile"), profile);
+
+            response->onFinished([this, profile]() {
+                m_activeProfile = profile;
+                emit activeProfileChanged();
+            });
+            response->onError([](const QDBusError &error) {
+                qWarning() << "Oh no" << error.message();
+            });
+        }
+    }
+
+private:
+    NemoDBus::Interface m_interface;
+    QString m_activeProfile;
+};
