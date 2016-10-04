@@ -14,6 +14,15 @@ BuildRequires:  mer-qdoc-template
 %description
 %{summary}.
 
+%package devel
+Summary:    Development libraries for nemo
+Group:      Development/Libraries
+Requires:   %{name} = %{version}-%{release}
+Requires:   pkgconfig(Qt5DBus)
+
+%description devel
+%{summary}.
+
 %package tests
 Summary:    DBus plugin tests
 Group:      System/Libraries
@@ -54,6 +63,10 @@ mkdir -p %{buildroot}%{_libdir}/qt5/qml/org/nemomobile/dbus/
 ln -sf %{_libdir}/qt5/qml/Nemo/DBus/libnemodbus.so %{buildroot}%{_libdir}/qt5/qml/org/nemomobile/dbus/
 sed 's/Nemo.DBus/org.nemomobile.dbus/' < src/qmldir > %{buildroot}%{_libdir}/qt5/qml/org/nemomobile/dbus/qmldir
 
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
 %files
 %defattr(-,root,root,-)
 %dir %{_libdir}/qt5/qml/Nemo/DBus
@@ -65,6 +78,18 @@ sed 's/Nemo.DBus/org.nemomobile.dbus/' < src/qmldir > %{buildroot}%{_libdir}/qt5
 %dir %{_libdir}/qt5/qml/org/nemomobile/dbus
 %{_libdir}/qt5/qml/org/nemomobile/dbus/libnemodbus.so
 %{_libdir}/qt5/qml/org/nemomobile/dbus/qmldir
+
+# library
+%{_libdir}/libnemodbus.so.*
+
+%files devel
+%defattr(-,root,root,-)
+%dir %{_includedir}/nemo-dbus
+%dir %{_includedir}/nemo-dbus/private
+%{_includedir}/nemo-dbus/*.h
+%{_includedir}/nemo-dbus/private/*.h
+%{_libdir}/libnemodbus.so
+%{_libdir}/pkgconfig/nemodbus.pc
 
 %files tests
 %defattr(-,root,root,-)
