@@ -36,7 +36,7 @@
 
 /*!
     \qmltype DBusAdaptor
-    \inqmlmodule org.nemomobile.dbus
+    \inqmlmodule Nemo.DBus
     \brief Provides a service on D-Bus
 
     The DBusAdaptor object can be used to provide a D-Bus service on the system or session bus. A
@@ -60,7 +60,7 @@
 
     \code
     import QtQuick 2.0
-    import org.nemomobile.dbus 2.0
+    import Nemo.DBus 2.0
 
     Item {
         DBusAdaptor {

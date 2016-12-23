@@ -1,5 +1,5 @@
 /*!
-\qmlmodule org.nemomobile.dbus 2.0
+\qmlmodule Nemo.DBus 2.0
 \contentspage
 \title Nemo QML Plugin D-Bus
 \brief Provides types to access D-Bus from QML

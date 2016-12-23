@@ -1,2 +1,2 @@
-module org.nemomobile.dbus
+module Nemo.DBus
 plugin nemodbus

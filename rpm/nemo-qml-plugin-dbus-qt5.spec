@@ -49,12 +49,22 @@ rm -rf %{buildroot}
 make -C tests/dbustestd install ROOT=%{buildroot} VERS=%{version}
 make install_docs INSTALL_ROOT=%{buildroot}
 
+# org.nemomobile.dbus legacy import
+mkdir -p %{buildroot}%{_libdir}/qt5/qml/org/nemomobile/dbus/
+ln -sf %{_libdir}/qt5/qml/Nemo/DBus/libnemodbus.so %{buildroot}%{_libdir}/qt5/qml/org/nemomobile/dbus/
+sed 's/Nemo.DBus/org.nemomobile.dbus/' < src/qmldir > %{buildroot}%{_libdir}/qt5/qml/org/nemomobile/dbus/qmldir
+
 %files
 %defattr(-,root,root,-)
+%dir %{_libdir}/qt5/qml/Nemo/DBus
+%{_libdir}/qt5/qml/Nemo/DBus/libnemodbus.so
+%{_libdir}/qt5/qml/Nemo/DBus/qmldir
+%{_libdir}/qt5/qml/Nemo/DBus/plugins.qmltypes
+
+# org.nemomobile.dbus legacy import
 %dir %{_libdir}/qt5/qml/org/nemomobile/dbus
 %{_libdir}/qt5/qml/org/nemomobile/dbus/libnemodbus.so
 %{_libdir}/qt5/qml/org/nemomobile/dbus/qmldir
-%{_libdir}/qt5/qml/org/nemomobile/dbus/plugins.qmltypes
 
 %files tests
 %defattr(-,root,root,-)

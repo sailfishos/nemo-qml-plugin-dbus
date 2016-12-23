@@ -1,5 +1,5 @@
 TARGET = nemodbus
-PLUGIN_IMPORT_PATH = org/nemomobile/dbus
+PLUGIN_IMPORT_PATH = Nemo/DBus
 QT += dbus qml
 
 QT -= gui
