@@ -43,7 +43,7 @@
 
 /*!
     \qmltype DBusInterface
-    \inqmlmodule org.nemomobile.dbus
+    \inqmlmodule Nemo.DBus
     \brief Provides access to a service on D-Bus
 
     The DBusInterface object can be used to call methods of objects on the system and session bus,

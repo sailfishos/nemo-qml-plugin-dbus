@@ -10,7 +10,7 @@ This code snippet talks to the profile daemon and sets the current profile to si
 
 \code
     import QtQuick 2.0
-    import org.nemomobile.dbus 2.0
+    import Nemo.DBus 2.0
 
     Item {
         DBusInterface {
@@ -35,7 +35,7 @@ to be called when the function result is available:
 
 \code
     import QtQuick 2.0
-    import org.nemomobile.dbus 2.0
+    import Nemo.DBus 2.0
 
     Item {
         DBusInterface {
@@ -61,7 +61,7 @@ to be called when the function result is available:
 
 \code
     import QtQuick 2.0
-    import org.nemomobile.dbus 2.0
+    import Nemo.DBus 2.0
 
     Item {
         DBusInterface {
