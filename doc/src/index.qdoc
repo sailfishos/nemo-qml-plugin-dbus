@@ -1,6 +1,13 @@
 /*!
 \qmlmodule Nemo.DBus 2.0
-\contentspage
+\title Nemo.DBus QML Types
+
+This module includes the following types:
+
+*/
+
+/*!
+\page index.html
 \title Nemo QML Plugin D-Bus
 \brief Provides types to access D-Bus from QML
 
@@ -26,5 +33,15 @@ on demand when their services are needed. (from the
 \section2 QML Types
 
 This module includes the following types:
+
+\generatelist{qmltypesbymodule Nemo.DBus}
+
+\section2 Further Reading
+
+\list
+
+  \li \l{Examples}
+
+\endlist
 
 */

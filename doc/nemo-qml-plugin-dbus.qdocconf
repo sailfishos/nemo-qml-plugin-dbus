@@ -16,6 +16,14 @@ qhp.NemoQmlPluginDBus.indexRoot =
 
 qhp.NemoQmlPluginDBus.filterAttributes = nemo-qml-plugin-dbus 2.0
 
+qhp.NemoQmlPluginDBus.subprojects = manual qmltypes
+qhp.NemoQmlPluginDBus.subprojects.manual.type = manual
+qhp.NemoQmlPluginDBus.subprojects.manual.indexTitle = Nemo QML Plugin D-Bus
+qhp.NemoQmlPluginDBus.subprojects.qmltypes.title = QML Types
+qhp.NemoQmlPluginDBus.subprojects.qmltypes.indexTitle = Nemo.DBus QML Types
+qhp.NemoQmlPluginDBus.subprojects.qmltypes.selectors = qmlclass
+qhp.NemoQmlPluginDBus.subprojects.qmltypes.sortPages = true
+
 HTML.footer += \
     "<div class=\"footer\">\n" \
     "  <p><acronym title=\"Copyright\">&copy;</acronym> 2015 Jolla OY</p>\n" \
