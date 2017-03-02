@@ -50,7 +50,7 @@ public:
     Connection(const QDBusConnection &connection);
     Connection(const QDBusConnection &connection, const QLoggingCategory &logs);
     Connection(const Connection &connection);
-    ~Connection();
+    virtual ~Connection();
 
     Connection &operator =(const Connection &) = delete;
 

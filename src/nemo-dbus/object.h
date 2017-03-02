@@ -42,7 +42,7 @@ class NEMODBUS_EXPORT Object
 {
 public:
     Object(QObject *context, const Connection &connection, const QString &service, const QString &path);
-    ~Object();
+    virtual ~Object();
 
     QObject *context() const;
     QDBusConnection connection() const;
