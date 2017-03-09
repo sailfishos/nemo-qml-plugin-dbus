@@ -41,7 +41,7 @@
 namespace NemoDBus
 {
 
-class NEMODBUS_EXPORT Response : public QDBusPendingCallWatcher
+class NEMODBUS_EXPORT Response : public QObject
 {
     Q_OBJECT
 public:    
@@ -50,8 +50,8 @@ public:
     template <typename... Arguments, typename Handler>
     void onFinished(const Handler &handler)
     {
-        connect(this, &Response::success, [handler](const QDBusPendingCall &call) {
-            invoke<Handler, Arguments...>(handler, call);
+        connect(this, &Response::success, [handler](const QVariantList &arguments) {
+            invoke<Handler, Arguments...>(handler, arguments);
         });
     }
 
@@ -62,40 +62,30 @@ public:
         });
     }
 
-    QString service() const { return m_service; }
-    QString path() const { return m_path; }
-    QString interface() const { return m_interface; }
-    QString method() const { return m_method; }
-
 signals:
-    void success(const QDBusPendingCall &call);
+    void success(const QVariantList &arguments);
     void failure(const QDBusError &error);
+
+private slots:
+   void callReturn(const QDBusMessage &message);
+   void callError(const QDBusError &error, const QDBusMessage &message);
 
 private:
     friend class ConnectionData;
 
-    template <typename Handler> static void invoke(const Handler &handler, const QDBusPendingCall &) { handler(); }
+    template <typename Handler> static void invoke(const Handler &handler, const QVariantList &) { handler(); }
     template <typename Handler, typename Argument0> static void invoke(
-            const Handler &handler, const QDBusPendingCall &call) {
-        const QDBusPendingReply<Argument0> reply(call);
-        handler(demarshallArgument<Argument0>(reply.argumentAt(0))); }
+            const Handler &handler, const QVariantList &arguments) {
+        handler(demarshallArgument<Argument0>(arguments.value(0))); }
     template <typename Handler, typename Argument0, typename Argument1> static void invoke(
-            const Handler &handler, const QDBusPendingCall &call) {
-        const QDBusPendingReply<Argument0, Argument1> reply(call);
-        handler(demarshallArgument<Argument0>(reply.argumentAt(0)), demarshallArgument<Argument1>(reply.argumentAt(1))); }
+            const Handler &handler, const QVariantList &arguments) {
+        handler(demarshallArgument<Argument0>(arguments.value(0)), demarshallArgument<Argument1>(arguments.value(1))); }
 
-    explicit Response(
-            const QDBusPendingCall &call,
-            const QString &service,
-            const QString &path,
-            const QString &interface,
-            const QString &method,
-            QObject *parent);
+    explicit Response(const QLoggingCategory &logs, QObject *parent);
 
-    const QString m_service;
-    const QString m_path;
-    const QString m_interface;
-    const QString m_method;
+    const QLoggingCategory &logs() { return m_logs; }
+
+    const QLoggingCategory &m_logs;
 };
 
 }

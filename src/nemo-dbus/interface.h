@@ -62,6 +62,12 @@ public:
         return Object::call(m_interface, method, arguments...);
     }
 
+    template <typename... Arguments>
+    QDBusMessage blockingCall(const QString &method, Arguments... arguments)
+    {
+        return Object::blockingCall(m_interface, method, arguments...);
+    }
+
     template <typename T, typename Handler>
     void subscribeToProperty(const QString &property, const Handler &onChanged)
     {

@@ -40,10 +40,6 @@
 
 #include <QSharedData>
 
-QT_BEGIN_NAMESPACE
-class QDBusPendingCallWatcher;
-QT_END_NAMESPACE
-
 namespace NemoDBus
 {
 
@@ -67,6 +63,17 @@ public:
             Arguments... arguments)
     {
         return callMethod(context, service, path, interface, method, marshallArguments(arguments...));
+    }
+
+    template <typename... Arguments>
+    QDBusMessage blockingCall(
+            const QString &service,
+            const QString &path,
+            const QString &interface,
+            const QString &method,
+            Arguments... arguments)
+    {
+        return blockingCallMethod(service, path, interface, method, marshallArguments(arguments...));
     }
 
     template <typename T, typename Handler>
@@ -105,8 +112,6 @@ public:
 
     void connectToDisconnected();
 
-    void callFinished(QDBusPendingCallWatcher *watcher);
-
     const QLoggingCategory &logs() { return m_logs; }
 
     QDBusConnection connection;
@@ -122,6 +127,12 @@ private slots:
 private:
     Response *callMethod(
             QObject *context,
+            const QString &service,
+            const QString &path,
+            const QString &interface,
+            const QString &method,
+            const QVariantList &arguments);
+    QDBusMessage blockingCallMethod(
             const QString &service,
             const QString &path,
             const QString &interface,
