@@ -35,6 +35,9 @@
 
 #include "logging.h"
 
+typedef QExplicitlySharedDataPointer<NemoDBus::ConnectionData> ConnectionDataPointer;
+Q_DECLARE_METATYPE(ConnectionDataPointer)
+
 namespace NemoDBus
 {
 
@@ -97,33 +100,6 @@ void ConnectionData::connectToDisconnected()
     }
 }
 
-void ConnectionData::callFinished(QDBusPendingCallWatcher *watcher)
-{
-    watcher->deleteLater();
-
-    const QDBusPendingCall reply = *watcher;
-    const auto response = static_cast<Response *>(watcher);
-
-    if (reply.isError()) {
-        qCWarning(logs, "DBus error (%s %s %s.%s): %s %s",
-                    qPrintable(response->service()),
-                    qPrintable(response->path()),
-                    qPrintable(response->interface()),
-                    qPrintable(response->method()),
-                    qPrintable(response->error().name()),
-                    qPrintable(response->error().message()));
-        response->failure(reply.error());
-    } else {
-        qCDebug(logs, "DBus reply (%s %s %s.%s)",
-                    qPrintable(response->service()),
-                    qPrintable(response->path()),
-                    qPrintable(response->interface()),
-                    qPrintable(response->method()));
-
-        response->success(reply);
-    }
-}
-
 void ConnectionData::handleDisconnect()
 {
     qCDebug(logs, "Disconnected from %s", qPrintable(connection.name()));
@@ -157,12 +133,36 @@ Response *ConnectionData::callMethod(
     QDBusMessage message = QDBusMessage::createMethodCall(service, path, interface, method);
     message.setArguments(arguments);
 
-    const auto response = new Response(
-                connection.asyncCall(message), service, path, interface, method, context);
-
-    connect(response, &QDBusPendingCallWatcher::finished, this, &ConnectionData::callFinished);
+    const auto response = new Response(m_logs, context);
+    // Setting the connection as a dynamic property of the response will keep a reference to it
+    // alive until after the the response's QObject destructor has executed.  This is important
+    // because the object may have a queued QDBusCallDeliveryEvent containing a reference to the
+    // connection which could be stale if all other references to the connection are freed before
+    // the response is destroyed.
+    response->setProperty("connection", QVariant::fromValue(ConnectionDataPointer(this)));
+    connection.callWithCallback(
+                message,
+                response,
+                SLOT(callReturn(QDBusMessage)),
+                SLOT(callError(QDBusError,QDBusMessage)));
 
     return response;
+}
+
+QDBusMessage ConnectionData::blockingCallMethod(
+        const QString &service,
+        const QString &path,
+        const QString &interface,
+        const QString &method,
+        const QVariantList &arguments)
+{
+    qCDebug(logs, "DBus invocation (%s %s %s.%s)",
+                qPrintable(service), qPrintable(path), qPrintable(interface), qPrintable(method));
+
+    QDBusMessage message = QDBusMessage::createMethodCall(service, path, interface, method);
+    message.setArguments(arguments);
+
+    return connection.call(message);
 }
 
 PropertyChanges *ConnectionData::subscribeToObject(

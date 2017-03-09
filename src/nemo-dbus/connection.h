@@ -82,6 +82,17 @@ public:
         return d->call(context, service, path, interface, method, arguments...);
     }
 
+    template <typename... Arguments>
+    QDBusMessage blockingCall(
+            const QString &service,
+            const QString &path,
+            const QString &interface,
+            const QString &method,
+            Arguments... arguments)
+    {
+        return d->blockingCall(service, path, interface, method, arguments...);
+    }
+
     template <typename T, typename Handler>
     void subscribeToProperty(
             QObject *context,

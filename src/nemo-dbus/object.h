@@ -55,6 +55,14 @@ public:
         return m_connection.call(m_context, m_service, m_path, interface, method, arguments...);
     }
 
+
+    template <typename... Arguments>
+    QDBusMessage blockingCall(const QString &interface, const QString &method, Arguments... arguments)
+    {
+        return m_connection.blockingCall(m_service, m_path, interface, method, arguments...);
+    }
+
+
     template <typename T, typename Handler>
     void subscribeToProperty(const QString &interface, const QString &property, const Handler &onChanged)
     {

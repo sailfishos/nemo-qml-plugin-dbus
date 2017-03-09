@@ -32,26 +32,47 @@
 
 #include "response.h"
 
+#include <QLoggingCategory>
+
 namespace NemoDBus
 {
 
-Response::Response(
-        const QDBusPendingCall &call,
-        const QString &service,
-        const QString &path,
-        const QString &interface,
-        const QString &method,
-        QObject *parent)
-    : QDBusPendingCallWatcher(call, parent)
-    , m_service(service)
-    , m_path(path)
-    , m_interface(interface)
-    , m_method(method)
+Response::Response(const QLoggingCategory &logs, QObject *parent)
+    : QObject(parent)
+    , m_logs(logs)
 {
 }
 
 Response::~Response()
 {
+}
+
+void Response::callReturn(const QDBusMessage &message)
+{
+    deleteLater();
+
+    qCDebug(logs, "DBus reply (%s %s %s.%s)",
+                qPrintable(message.service()),
+                qPrintable(message.path()),
+                qPrintable(message.interface()),
+                qPrintable(message.member()));
+
+    emit success(message.arguments());
+}
+
+void Response::callError(const QDBusError &error, const QDBusMessage &message)
+{
+    deleteLater();
+
+    qCWarning(logs, "DBus error (%s %s %s.%s): %s %s",
+                qPrintable(message.service()),
+                qPrintable(message.path()),
+                qPrintable(message.interface()),
+                qPrintable(message.member()),
+                qPrintable(error.name()),
+                qPrintable(error.message()));
+
+    emit failure(error);
 }
 
 }
