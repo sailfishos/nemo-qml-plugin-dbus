@@ -47,7 +47,7 @@ Group:      System/Libraries
 %setup -q -n %{name}-%{version}
 
 %build
-%qmake5
+%qmake5 "VERSION=%{version}"
 make %{?jobs:-j%jobs}
 make -C tests/dbustestd %{?jobs:-j%jobs}
 make %{?jobs:-j%jobs} docs
