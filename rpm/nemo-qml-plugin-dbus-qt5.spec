@@ -48,9 +48,9 @@ Group:      System/Libraries
 
 %build
 %qmake5 "VERSION=%{version}"
-make %{?jobs:-j%jobs}
-make -C tests/dbustestd %{?jobs:-j%jobs}
-make %{?jobs:-j%jobs} docs
+make  %{?_smp_mflags}
+make -C tests/dbustestd  %{?_smp_mflags}
+make  %{?_smp_mflags} docs
 
 %install
 rm -rf %{buildroot}
