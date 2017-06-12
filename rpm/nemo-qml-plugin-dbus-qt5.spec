@@ -47,10 +47,10 @@ Group:      System/Libraries
 %setup -q -n %{name}-%{version}
 
 %build
-%qmake5
-make %{?jobs:-j%jobs}
-make -C tests/dbustestd %{?jobs:-j%jobs}
-make %{?jobs:-j%jobs} docs
+%qmake5 "VERSION=%{version}"
+make  %{?_smp_mflags}
+make -C tests/dbustestd  %{?_smp_mflags}
+make  %{?_smp_mflags} docs
 
 %install
 rm -rf %{buildroot}
