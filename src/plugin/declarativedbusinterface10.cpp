@@ -23,6 +23,7 @@
 ****************************************************************************************/
 
 #include "declarativedbusinterface10.h"
+#include <qqmlinfo.h>
 
 DeclarativeDBusInterface10::DeclarativeDBusInterface10(QObject *parent)
     : DeclarativeDBusInterface(parent)
@@ -31,6 +32,7 @@ DeclarativeDBusInterface10::DeclarativeDBusInterface10(QObject *parent)
             this, SIGNAL(destinationChanged()));
     connect(this, SIGNAL(busChanged()),
             this, SIGNAL(busTypeChanged()));
+    qmlInfo(this) << "org.nemomobile.dbus 1.0 is obsolete. Please upgrade your code to Nemo.DBus 2.0";
 }
 
 DeclarativeDBusInterface10::~DeclarativeDBusInterface10()

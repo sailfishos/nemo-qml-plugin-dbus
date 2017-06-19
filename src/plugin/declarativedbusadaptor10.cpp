@@ -23,12 +23,14 @@
 ****************************************************************************************/
 
 #include "declarativedbusadaptor10.h"
+#include <qqmlinfo.h>
 
 DeclarativeDBusAdaptor10::DeclarativeDBusAdaptor10(QObject *parent)
     : DeclarativeDBusAdaptor(parent)
 {
     connect(this, SIGNAL(busChanged()),
             this, SIGNAL(busTypeChanged()));
+    qmlInfo(this) << "org.nemomobile.dbus 1.0 is obsolete. Please upgrade your code to Nemo.DBus 2.0";
 }
 
 DeclarativeDBusAdaptor10::~DeclarativeDBusAdaptor10()
