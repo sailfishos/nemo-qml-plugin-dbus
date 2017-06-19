@@ -15,7 +15,7 @@ QT += dbus
 INCLUDEPATH += ..
 
 DEFINES += \
-        NEMOBBUS_BUILD_LIBRARY
+        NEMODBUS_BUILD_LIBRARY
 
 include(private/private.pri)
 

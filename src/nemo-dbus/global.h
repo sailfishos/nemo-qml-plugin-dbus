@@ -35,7 +35,7 @@
 
 #include <QtGlobal>
 
-#if defined(NEMOBBUS_BUILD_LIBRARY)
+#if defined(NEMODBUS_BUILD_LIBRARY)
 #define NEMODBUS_EXPORT Q_DECL_EXPORT
 #else
 #define NEMODBUS_EXPORT Q_DECL_IMPORT
