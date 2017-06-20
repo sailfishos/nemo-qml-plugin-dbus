@@ -53,9 +53,11 @@ public:
     {
         Q_ASSERT(uri == QLatin1String("Nemo.DBus") || uri == QLatin1String("org.nemomobile.dbus"));
 
-        // QML API 1.0 (backwards compatible to 0.0.x versions)
-        qmlRegisterType<DeclarativeDBusAdaptor10>(uri, 1, 0, "DBusAdaptor");
-        qmlRegisterType<DeclarativeDBusInterface10>(uri, 1, 0, "DBusInterface");
+        if (uri == QLatin1String("org.nemomobile.dbus")) {
+            // QML API 1.0 (backwards compatible to 0.0.x versions)
+            qmlRegisterType<DeclarativeDBusAdaptor10>(uri, 1, 0, "DBusAdaptor");
+            qmlRegisterType<DeclarativeDBusInterface10>(uri, 1, 0, "DBusInterface");
+        }
 
         // QML API 2.0 (with deprecated fields removed)
         qmlRegisterUncreatableType<DeclarativeDBus>(uri, 2, 0, "DBus", "Cannot create DBus objects");

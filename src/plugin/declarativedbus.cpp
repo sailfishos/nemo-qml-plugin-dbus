@@ -25,6 +25,7 @@
 #include "declarativedbus.h"
 
 DeclarativeDBus::DeclarativeDBus(QObject *parent)
+    : QObject(parent)
 {
 }
 
