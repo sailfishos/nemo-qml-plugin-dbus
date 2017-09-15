@@ -28,6 +28,7 @@
 #include <QDBusMetaType>
 #include <QDBusMessage>
 #include <QDBusConnection>
+#include <QDBusConnectionInterface>
 #include <QDBusObjectPath>
 #include <QDBusSignature>
 #include <QDBusUnixFileDescriptor>
@@ -140,6 +141,8 @@ const QLatin1String PropertyInterface("org.freedesktop.DBus.Properties");
 
 DeclarativeDBusInterface::DeclarativeDBusInterface(QObject *parent)
     : QObject(parent)
+    , m_watchServiceStatus(false)
+    , m_status(Unknown)
     , m_bus(DeclarativeDBus::SessionBus)
     , m_componentCompleted(false)
     , m_signalsEnabled(false)
@@ -148,6 +151,7 @@ DeclarativeDBusInterface::DeclarativeDBusInterface(QObject *parent)
     , m_propertiesConnected(false)
     , m_introspected(false)
     , m_providesPropertyInterface(false)
+    , m_serviceWatcher(nullptr)
 {
 }
 
@@ -155,6 +159,29 @@ DeclarativeDBusInterface::~DeclarativeDBusInterface()
 {
     foreach (QDBusPendingCallWatcher *watcher, m_pendingCalls.keys())
         delete watcher;
+}
+
+bool DeclarativeDBusInterface::watchServiceStatus() const
+{
+    return m_watchServiceStatus;
+}
+
+void DeclarativeDBusInterface::setWatchServiceStatus(bool watchServiceStatus)
+{
+    if (m_watchServiceStatus != watchServiceStatus) {
+        m_watchServiceStatus = watchServiceStatus;
+        updateServiceWatcher();
+
+        emit watchServiceStatusChanged();
+
+        connectSignalHandler();
+        connectPropertyHandler();
+    }
+}
+
+DeclarativeDBusInterface::Status DeclarativeDBusInterface::status() const
+{
+    return m_status;
 }
 
 /*!
@@ -173,6 +200,8 @@ void DeclarativeDBusInterface::setService(const QString &service)
         invalidateIntrospection();
 
         m_service = service;
+        updateServiceWatcher();
+
         emit serviceChanged();
 
         connectSignalHandler();
@@ -247,6 +276,7 @@ void DeclarativeDBusInterface::setBus(DeclarativeDBus::BusType bus)
         invalidateIntrospection();
 
         m_bus = bus;
+        updateServiceWatcher();
         emit busChanged();
 
         connectSignalHandler();
@@ -611,6 +641,33 @@ DeclarativeDBusInterface::constructMessage(const QString &service,
             return QDBusMessage();
     }
     return message;
+}
+
+void DeclarativeDBusInterface::updateServiceWatcher()
+{
+    delete m_serviceWatcher;
+    m_serviceWatcher = nullptr;
+
+    if (!m_service.isEmpty() && m_watchServiceStatus) {
+        QDBusConnection conn = DeclarativeDBus::connection(m_bus);
+        m_serviceWatcher = new QDBusServiceWatcher(m_service, conn,
+                                                   QDBusServiceWatcher::WatchForRegistration |
+                                                   QDBusServiceWatcher::WatchForUnregistration, this);
+        connect(m_serviceWatcher, &QDBusServiceWatcher::serviceRegistered,
+                this, &DeclarativeDBusInterface::serviceRegistered);
+        connect(m_serviceWatcher, &QDBusServiceWatcher::serviceUnregistered,
+                this, &DeclarativeDBusInterface::serviceUnregistered);
+
+        if (conn.interface()->isServiceRegistered(m_service)) {
+            QMetaObject::invokeMethod(this, "serviceRegistered", Qt::QueuedConnection);
+        }
+    }
+}
+
+bool DeclarativeDBusInterface::serviceAvailable() const
+{
+    // If we're not interrested about watching service status, treat service as available.
+    return !m_watchServiceStatus || m_status == Available;
 }
 
 /*!
@@ -1082,7 +1139,8 @@ void DeclarativeDBusInterface::connectSignalHandler()
             || !m_signalsEnabled
             || m_service.isEmpty()
             || m_path.isEmpty()
-            || m_interface.isEmpty()) {
+            || m_interface.isEmpty()
+            || !serviceAvailable()) {
         return;
     }
 
@@ -1109,7 +1167,8 @@ void DeclarativeDBusInterface::connectPropertyHandler()
                 || (!m_propertiesEnabled && !m_signalsEnabled)
                 || m_service.isEmpty()
                 || m_path.isEmpty()
-                || m_interface.isEmpty()) {
+                || m_interface.isEmpty()
+                || !serviceAvailable()) {
         return;
     }
 
@@ -1162,6 +1221,21 @@ void DeclarativeDBusInterface::queryPropertyValues()
 void DeclarativeDBusInterface::propertyValuesReceived(const QDBusMessage &message)
 {
     updatePropertyValues(message.arguments().value(0).value<QDBusArgument>());
+}
+
+void DeclarativeDBusInterface::serviceRegistered()
+{
+    m_status = Available;
+    emit statusChanged();
+
+    connectSignalHandler();
+    connectPropertyHandler();
+}
+
+void DeclarativeDBusInterface::serviceUnregistered()
+{
+    m_status = Unavailable;
+    emit statusChanged();
 }
 
 void DeclarativeDBusInterface::updatePropertyValues(const QDBusArgument &argument)

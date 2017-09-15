@@ -36,6 +36,7 @@
 #include <QUrl>
 #include <QDBusPendingCallWatcher>
 #include <QDBusMessage>
+#include <QDBusServiceWatcher>
 #include <QPair>
 
 #include "declarativedbus.h"
@@ -44,6 +45,8 @@ class DeclarativeDBusInterface : public QObject, public QQmlParserStatus
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool watchServiceStatus READ watchServiceStatus WRITE setWatchServiceStatus NOTIFY watchServiceStatusChanged)
+    Q_PROPERTY(Status status READ status NOTIFY statusChanged)
     Q_PROPERTY(QString service READ service WRITE setService NOTIFY serviceChanged)
     Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged)
     Q_PROPERTY(QString iface READ interface WRITE setInterface NOTIFY interfaceChanged)
@@ -56,6 +59,14 @@ class DeclarativeDBusInterface : public QObject, public QQmlParserStatus
 public:
     DeclarativeDBusInterface(QObject *parent = 0);
     ~DeclarativeDBusInterface();
+
+    enum Status { Unknown, Unavailable, Available };
+    Q_ENUM(Status)
+
+    bool watchServiceStatus() const;
+    void setWatchServiceStatus(bool watchServiceStatus);
+
+    Status status() const;
 
     QString service() const;
     void setService(const QString &service);
@@ -97,6 +108,8 @@ public:
     static QVariantList argumentsFromScriptValue(const QJSValue &arguments);
 
 signals:
+    void watchServiceStatusChanged();
+    void statusChanged();
     void serviceChanged();
     void pathChanged();
     void interfaceChanged();
@@ -111,6 +124,9 @@ private slots:
     void introspectionDataReceived(const QString &introspectionData);
     void notifyPropertyChange(const QDBusMessage &message);
     void propertyValuesReceived(const QDBusMessage &message);
+
+    void serviceRegistered();
+    void serviceUnregistered();
 
 private:
     void invalidateIntrospection();
@@ -131,6 +147,11 @@ private:
                                   const QString &method,
                                   const QJSValue &arguments);
 
+    void updateServiceWatcher();
+    bool serviceAvailable() const;
+
+    bool m_watchServiceStatus;
+    Status m_status;
     QString m_service;
     QString m_path;
     QString m_interface;
@@ -145,6 +166,8 @@ private:
     bool m_propertiesConnected;
     bool m_introspected;
     bool m_providesPropertyInterface;
+
+    QDBusServiceWatcher *m_serviceWatcher;
 };
 
 #endif
