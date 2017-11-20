@@ -21,6 +21,7 @@ include(private/private.pri)
 
 SOURCES += \
         connection.cpp \
+        context.cpp \
         dbus.cpp \
         interface.cpp \
         logging.cpp \
@@ -29,6 +30,7 @@ SOURCES += \
 
 PUBLIC_HEADERS += \
         connection.h \
+        context.h \
         dbus.h \
         global.h \
         interface.h \
