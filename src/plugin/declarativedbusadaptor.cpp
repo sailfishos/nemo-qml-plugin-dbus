@@ -92,6 +92,21 @@ DeclarativeDBusAdaptor::DeclarativeDBusAdaptor(QObject *parent)
 
 DeclarativeDBusAdaptor::~DeclarativeDBusAdaptor()
 {
+    QDBusConnection conn = DeclarativeDBus::connection(m_bus);
+    conn.unregisterObject(m_path);
+
+    // In theory an application could have multiple adaptor items for different paths or
+    // interfaces and destroying one would unregister the whole service.
+    // If problems arise we could introduce refcounting for services so that
+    // the last service would be responsible for unregisting the service upon
+    // destruction. Unregisration should also take into account unregistration happening
+    // from C++ side.
+    if (!m_service.isEmpty()) {
+        if (!conn.unregisterService(m_service)) {
+            qmlInfo(this) << "Failed to unregister service" << m_service;
+            qmlInfo(this) << conn.lastError().message();
+        }
+    }
 }
 
 /*!
