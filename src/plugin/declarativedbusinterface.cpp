@@ -600,7 +600,7 @@ DeclarativeDBusInterface::marshallDBusArgument(QDBusMessage &msg, const QJSValue
         // The result must be an array of typed data
         if (!value.isArray()) {
             qWarning() << "Invalid value for type specifier:" << t << "v:" << value.toVariant();
-            qmlInfo(this) << "Invalid value for type specifier:" << t << "v:" << value.toVariant();
+            qmlInfo(this) << "Invalid value for type specifier: " << t << " v: " << value.toVariant();
             return false;
         }
 
@@ -614,7 +614,7 @@ DeclarativeDBusInterface::marshallDBusArgument(QDBusMessage &msg, const QJSValue
     }
 
     qWarning() << "DeclarativeDBusInterface::typedCall - Invalid type specifier:" << t;
-    qmlInfo(this) << "DeclarativeDBusInterface::typedCall - Invalid type specifier:" << t;
+    qmlInfo(this) << "DeclarativeDBusInterface::typedCall - Invalid type specifier: " << t;
     return false;
 }
 
@@ -696,7 +696,7 @@ bool DeclarativeDBusInterface::typedCall(const QString &method, const QJSValue &
 {
     QDBusMessage message = constructMessage(m_service, m_path, m_interface, method, arguments);
     if (message.type() == QDBusMessage::InvalidMessage) {
-        qmlInfo(this) << "Invalid message, cannot call method:" << method;
+        qmlInfo(this) << "Invalid message, cannot call method: " << method;
         return false;
     }
 
@@ -1282,6 +1282,6 @@ void DeclarativeDBusInterface::introspect()
     QDBusConnection conn = DeclarativeDBus::connection(m_bus);
 
     if (!conn.callWithCallback(message, this, SLOT(introspectionDataReceived(QString)))) {
-        qmlInfo(this) << "Failed to introspect interface" << conn.lastError();
+        qmlInfo(this) << "Failed to introspect interface " << conn.lastError();
     }
 }
