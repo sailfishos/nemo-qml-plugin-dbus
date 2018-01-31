@@ -103,7 +103,7 @@ DeclarativeDBusAdaptor::~DeclarativeDBusAdaptor()
     // from C++ side.
     if (!m_service.isEmpty()) {
         if (!conn.unregisterService(m_service)) {
-            qmlInfo(this) << "Failed to unregister service" << m_service;
+            qmlInfo(this) << "Failed to unregister service " << m_service;
             qmlInfo(this) << conn.lastError().message();
         }
     }
@@ -221,14 +221,14 @@ void DeclarativeDBusAdaptor::componentComplete()
     // It is still valid to publish an object on the bus without first registering a service name,
     // a remote process would have to connect directly to the DBus address.
     if (!conn.registerVirtualObject(m_path, this)) {
-        qmlInfo(this) << "Failed to register object" << m_path;
+        qmlInfo(this) << "Failed to register object " << m_path;
         qmlInfo(this) << conn.lastError().message();
     }
 
     // Register service name only if it has been set.
     if (!m_service.isEmpty()) {
         if (!conn.registerService(m_service)) {
-            qmlInfo(this) << "Failed to register service" << m_service;
+            qmlInfo(this) << "Failed to register service " << m_service;
             qmlInfo(this) << conn.lastError().message();
         }
     }
