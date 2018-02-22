@@ -89,6 +89,7 @@ public:
 
         QObject::connect(
                     subscription, &PropertyChanges::propertyChanged,
+                    context,
                     [interface, property, onChanged](
                         const QString changedInterface, const QString &changedProperty, const QVariant &value) {
             if (interface == changedInterface && property == changedProperty) {
