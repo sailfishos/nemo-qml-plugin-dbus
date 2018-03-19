@@ -105,6 +105,8 @@ template <typename... Arguments> inline bool send(
     return send(QDBusConnection(connectionName), path, interface, method, arguments...);
 }
 
+NEMODBUS_EXPORT QVariant demarshallDBusArgument(const QVariant &val, int depth = 0);
+
 NEMODBUS_EXPORT Connection systemBus();
 NEMODBUS_EXPORT Connection sessionBus();
 

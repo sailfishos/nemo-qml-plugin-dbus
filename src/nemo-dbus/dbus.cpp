@@ -34,6 +34,8 @@
 #include "connection.h"
 
 #include <QThreadStorage>
+#include <QDBusUnixFileDescriptor>
+#include <QDebug>
 
 namespace NemoDBus
 {
@@ -68,6 +70,128 @@ Connection sessionBus()
     static QThreadStorage<SessionBus> bus;
 
     return bus.localData();
+}
+
+QVariant demarshallDBusArgument(const QVariant &val, int depth)
+{
+
+    /* Limit recursion depth to protect against type conversions
+     * that fail to converge to basic qt types within qt variant.
+     *
+     * Using limit >= DBUS_MAXIMUM_TYPE_RECURSION_DEPTH (=32) should
+     * mean we do not bail out too soon on deeply nested but othewise
+     * valid dbus messages. */
+    static const int maximum_dept = 32;
+
+    /* Default to QVariant with isInvalid() == true */
+    QVariant res;
+
+    const int type = val.userType();
+
+    if( ++depth > maximum_dept ) {
+        /* Leave result to invalid variant */
+        qWarning() << "Too deep recursion detected at userType:" << type;
+    }
+    else if (type == QVariant::ByteArray ) {
+        /* Is built-in type, but does not get correctly converted
+         * to qml domain -> convert to variant list */
+        QByteArray arr = val.toByteArray();
+        QVariantList lst;
+        for( int i = 0; i < arr.size(); ++i )
+            lst << QVariant::fromValue(static_cast<quint8>(arr[i]));
+        res = QVariant::fromValue(lst);
+    }
+    else if (type == val.type()) {
+        /* Already is built-in qt type, use as is */
+        res = val;
+    } else if (type == qMetaTypeId<QDBusVariant>()) {
+        /* Convert QDBusVariant to QVariant */
+        res = demarshallDBusArgument(val.value<QDBusVariant>().variant(), depth);
+    } else if (type == qMetaTypeId<QDBusObjectPath>()) {
+        /* Convert QDBusObjectPath to QString */
+        res = val.value<QDBusObjectPath>().path();
+    } else if (type == qMetaTypeId<QDBusSignature>()) {
+        /* Convert QDBusSignature to QString */
+        res =  val.value<QDBusSignature>().signature();
+    } else if (type == qMetaTypeId<QDBusUnixFileDescriptor>()) {
+        /* Convert QDBusUnixFileDescriptor to int */
+        res =  val.value<QDBusUnixFileDescriptor>().fileDescriptor();
+    } else if (type == qMetaTypeId<QDBusArgument>()) {
+        /* Try to deal with everything QDBusArgument could be ... */
+        const QDBusArgument &arg = val.value<QDBusArgument>();
+        const QDBusArgument::ElementType elem = arg.currentType();
+        switch (elem) {
+        case QDBusArgument::BasicType:
+            /* Most of the basic types should be convertible to QVariant.
+             * Recurse anyway to deal with object paths and the like. */
+            res = demarshallDBusArgument(arg.asVariant(), depth);
+            break;
+
+        case QDBusArgument::VariantType:
+            /* Try to convert to QVariant. Recurse to check content */
+            res = demarshallDBusArgument(arg.asVariant().value<QDBusVariant>().variant(),
+                                         depth);
+            break;
+
+        case QDBusArgument::ArrayType:
+            /* Convert dbus array to QVariantList */
+            {
+                QVariantList list;
+                arg.beginArray();
+                while (!arg.atEnd()) {
+                    QVariant tmp = arg.asVariant();
+                    list.append(demarshallDBusArgument(tmp, depth));
+                }
+                arg.endArray();
+                res = list;
+            }
+            break;
+
+        case QDBusArgument::StructureType:
+            /* Convert dbus struct to QVariantList */
+            {
+                QVariantList list;
+                arg.beginStructure();
+                while (!arg.atEnd()) {
+                    QVariant tmp = arg.asVariant();
+                    list.append(demarshallDBusArgument(tmp, depth));
+                }
+                arg.endStructure();
+                res = QVariant::fromValue(list);
+            }
+            break;
+
+        case QDBusArgument::MapType:
+            /* Convert dbus dict to QVariantMap */
+            {
+                QVariantMap map;
+                arg.beginMap();
+                while (!arg.atEnd()) {
+                    arg.beginMapEntry();
+                    QVariant key = arg.asVariant();
+                    QVariant val = arg.asVariant();
+                    map.insert(demarshallDBusArgument(key, depth).toString(),
+                               demarshallDBusArgument(val, depth));
+                    arg.endMapEntry();
+                }
+                arg.endMap();
+                res = map;
+            }
+            break;
+
+        default:
+            /* Unhandled types produce invalid QVariant */
+            qWarning() << "Unhandled QDBusArgument element type:" << elem;
+            break;
+        }
+    } else {
+        /* Default to using as is. This should leave for example QDBusError
+         * types in a form that does not look like a string to qml code. */
+        res = val;
+        qWarning() << "Unhandled QVariant userType:" << type;
+    }
+
+    return res;
 }
 
 }

@@ -104,7 +104,6 @@ public:
     void classBegin();
     void componentComplete();
 
-    static QVariant unwind(const QVariant &val, int depth = 0);
     static QVariantList argumentsFromScriptValue(const QJSValue &arguments);
 
 signals:

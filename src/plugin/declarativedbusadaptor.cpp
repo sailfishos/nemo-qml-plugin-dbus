@@ -23,6 +23,8 @@
 ****************************************************************************************/
 
 #include "declarativedbusadaptor.h"
+#include "declarativedbusinterface.h"
+#include "dbus.h"
 
 #include <QDBusArgument>
 #include <QDBusMessage>
@@ -32,7 +34,6 @@
 #include <qqmlinfo.h>
 #include <QtDebug>
 
-#include "declarativedbusinterface.h"
 
 /*!
     \qmltype DBusAdaptor
@@ -372,7 +373,7 @@ bool DeclarativeDBusAdaptor::handleMessage(const QDBusMessage &message, const QD
                 if (QLatin1String(property.name()) != member)
                     continue;
 
-                QVariant value = DeclarativeDBusInterface::unwind(dbusArguments.value(2));
+                QVariant value = NemoDBus::demarshallDBusArgument(dbusArguments.value(2));
 
                 return property.write(this, value);
             }
@@ -399,7 +400,7 @@ bool DeclarativeDBusAdaptor::handleMessage(const QDBusMessage &message, const QD
 
         int argumentCount = 0;
         for (; argumentCount < 10 && argumentCount < dbusArguments.count(); ++argumentCount) {
-            variants[argumentCount] = DeclarativeDBusInterface::unwind(dbusArguments.at(argumentCount));
+            variants[argumentCount] = NemoDBus::demarshallDBusArgument(dbusArguments.at(argumentCount));
             QVariant &argument = variants[argumentCount];
 
             const QByteArray parameterType = parameterTypes.at(argumentCount);
