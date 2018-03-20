@@ -34,6 +34,7 @@
 #include "connection.h"
 
 #include <QThreadStorage>
+#include <QDBusMetaType>
 #include <QDBusUnixFileDescriptor>
 #include <QDebug>
 
@@ -74,6 +75,8 @@ Connection sessionBus()
 
 QVariant demarshallDBusArgument(const QVariant &val, int depth)
 {
+    // Make sure that dbus types are registered.
+    registerDBusTypes();
 
     /* Limit recursion depth to protect against type conversions
      * that fail to converge to basic qt types within qt variant.
@@ -192,6 +195,28 @@ QVariant demarshallDBusArgument(const QVariant &val, int depth)
     }
 
     return res;
+}
+
+void registerDBusTypes()
+{
+    static bool done = false;
+
+    if(!done) {
+        done = true;
+
+        qDBusRegisterMetaType< QList<bool> >();
+        qDBusRegisterMetaType< QList<int> >();
+        qDBusRegisterMetaType< QList<double> >();
+
+        qDBusRegisterMetaType< QList<quint8> >();
+        qDBusRegisterMetaType< QList<quint16> >();
+        qDBusRegisterMetaType< QList<quint32> >();
+        qDBusRegisterMetaType< QList<quint64> >();
+
+        qDBusRegisterMetaType< QList<qint16> >();
+        qDBusRegisterMetaType< QList<qint32> >();
+        qDBusRegisterMetaType< QList<qint64> >();
+    }
 }
 
 }

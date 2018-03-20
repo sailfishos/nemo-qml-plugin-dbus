@@ -26,7 +26,6 @@
 #include "dbus.h"
 
 #include <QMetaMethod>
-#include <QDBusMetaType>
 #include <QDBusMessage>
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
@@ -408,28 +407,6 @@ static QByteArray toQByteArray(const QVariantList &lst) {
     return arr;
 }
 
-static void registerDBusTypes(void)
-{
-    static bool done = false;
-
-    if( !done ) {
-        done = true;
-
-        qDBusRegisterMetaType< QList<bool> >();
-        qDBusRegisterMetaType< QList<int> >();
-        qDBusRegisterMetaType< QList<double> >();
-
-        qDBusRegisterMetaType< QList<quint8> >();
-        qDBusRegisterMetaType< QList<quint16> >();
-        qDBusRegisterMetaType< QList<quint32> >();
-        qDBusRegisterMetaType< QList<quint64> >();
-
-        qDBusRegisterMetaType< QList<qint16> >();
-        qDBusRegisterMetaType< QList<qint32> >();
-        qDBusRegisterMetaType< QList<qint64> >();
-    }
-}
-
 static bool flattenVariantList(QVariant &var, const QVariantList &lst,
                                int typeChar)
 {
@@ -626,8 +603,6 @@ DeclarativeDBusInterface::constructMessage(const QString &service,
                                            const QString &method,
                                            const QJSValue &arguments)
 {
-    registerDBusTypes();
-
     QDBusMessage message = QDBusMessage::createMethodCall(service, path, interface, method);
 
     if (arguments.isArray()) {
