@@ -10,3 +10,5 @@ MER_QDOC.path = /usr/share/doc/nemo-qml-plugin-dbus
 OTHER_FILES += \
     rpm/nemo-qml-plugin-dbus-qt5.spec \
     doc/src/index.qdoc
+
+tests.depends = src
