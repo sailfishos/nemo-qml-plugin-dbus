@@ -40,8 +40,7 @@
 
 #include <QSharedData>
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 class ConnectionData;
 class NEMODBUS_EXPORT Connection
@@ -61,12 +60,14 @@ public:
     bool reconnect(const QDBusConnection &connection);
 
     template <typename Handler>
-    void onConnected(QObject *context, const Handler &handler) {
+    void onConnected(QObject *context, const Handler &handler)
+    {
         QObject::connect(d.data(), &ConnectionData::connected, context, handler);
     }
 
     template <typename Handler>
-    void onDisconnected(QObject *context, const Handler &handler) {
+    void onDisconnected(QObject *context, const Handler &handler)
+    {
         QObject::connect(d.data(), &ConnectionData::disconnected, context, handler);
     }
 

@@ -44,6 +44,8 @@
 #include "declarativedbusadaptor.h"
 #include "declarativedbusinterface.h"
 
+#include "dbus.h"
+
 class Q_DECL_EXPORT NemoDBusPlugin : public QQmlExtensionPlugin
 {
     Q_OBJECT
@@ -52,6 +54,8 @@ public:
     void registerTypes(const char *uri)
     {
         Q_ASSERT(uri == QLatin1String("Nemo.DBus") || uri == QLatin1String("org.nemomobile.dbus"));
+
+        NemoDBus::registerDBusTypes();
 
         if (uri == QLatin1String("org.nemomobile.dbus")) {
             // QML API 1.0 (backwards compatible to 0.0.x versions)

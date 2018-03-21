@@ -10,6 +10,9 @@ CONFIG += qt plugin hide_symbols
 target.path = $$[QT_INSTALL_QML]/$$PLUGIN_IMPORT_PATH
 INSTALLS += target
 
+LIBS += -L../nemo-dbus -lnemodbus
+INCLUDEPATH += $$PWD/.. $$PWD/../nemo-dbus
+
 qmldir.files += \
         $$_PRO_FILE_PWD_/qmldir \
         $$_PRO_FILE_PWD_/plugins.qmltypes

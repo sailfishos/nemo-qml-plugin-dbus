@@ -40,8 +40,7 @@
 
 #include <QSharedData>
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 class PropertyChanges;
 class Response;
@@ -91,7 +90,7 @@ public:
                     subscription, &PropertyChanges::propertyChanged,
                     context,
                     [interface, property, onChanged](
-                        const QString changedInterface, const QString &changedProperty, const QVariant &value) {
+                    const QString changedInterface, const QString &changedProperty, const QVariant &value) {
             if (interface == changedInterface && property == changedProperty) {
                 onChanged(demarshallArgument<T>(value));
             }
@@ -113,7 +112,10 @@ public:
 
     void connectToDisconnected();
 
-    const QLoggingCategory &logs() { return m_logs; }
+    const QLoggingCategory &logs()
+    {
+        return m_logs;
+    }
 
     QDBusConnection connection;
     QHash<QString, QHash<QString, PropertyChanges *>> propertyChanges;

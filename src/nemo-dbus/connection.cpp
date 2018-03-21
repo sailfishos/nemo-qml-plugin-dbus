@@ -38,8 +38,7 @@
 typedef QExplicitlySharedDataPointer<NemoDBus::ConnectionData> ConnectionDataPointer;
 Q_DECLARE_METATYPE(ConnectionDataPointer)
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 ConnectionData::ConnectionData(const QDBusConnection &connection, const QLoggingCategory &logs)
     : connection(connection)
@@ -51,7 +50,7 @@ ConnectionData::ConnectionData(const QDBusConnection &connection, const QLogging
         connectToDisconnected();
     } else {
         qCWarning(logs, "Connection to %s failed.  %s",
-                    qPrintable(connection.name()), qPrintable(connection.lastError().message()));
+                  qPrintable(connection.name()), qPrintable(connection.lastError().message()));
     }
 }
 
@@ -80,9 +79,9 @@ bool ConnectionData::getProperty(
         return true;
     } else {
         qCWarning(logs, "DBus error (%s %s org.freedesktop.DBus.Properties.Get): %s",
-                    qPrintable(service),
-                    qPrintable(path),
-                    qPrintable(reply.errorMessage()));
+                  qPrintable(service),
+                  qPrintable(path),
+                  qPrintable(reply.errorMessage()));
         return false;
     }
 }
@@ -128,7 +127,7 @@ Response *ConnectionData::callMethod(
         const QVariantList &arguments)
 {
     qCDebug(logs, "DBus invocation (%s %s %s.%s)",
-                qPrintable(service), qPrintable(path), qPrintable(interface), qPrintable(method));
+            qPrintable(service), qPrintable(path), qPrintable(interface), qPrintable(method));
 
     QDBusMessage message = QDBusMessage::createMethodCall(service, path, interface, method);
     message.setArguments(arguments);
@@ -157,7 +156,7 @@ QDBusMessage ConnectionData::blockingCallMethod(
         const QVariantList &arguments)
 {
     qCDebug(logs, "DBus invocation (%s %s %s.%s)",
-                qPrintable(service), qPrintable(path), qPrintable(interface), qPrintable(method));
+            qPrintable(service), qPrintable(path), qPrintable(interface), qPrintable(method));
 
     QDBusMessage message = QDBusMessage::createMethodCall(service, path, interface, method);
     message.setArguments(arguments);
@@ -227,7 +226,7 @@ bool Connection::reconnect(const QDBusConnection &connection)
         return true;
     } else {
         qCWarning(d->logs, "Connection to %s failed.  %s",
-                    qPrintable(d->connection.name()), qPrintable(d->connection.lastError().message()));
+                  qPrintable(d->connection.name()), qPrintable(d->connection.lastError().message()));
         return false;
     }
 }
@@ -242,7 +241,7 @@ bool Connection::connectToSignal(
 {
     if (!d->connection.connect(service, path, interface,  signal, object, slot)) {
         qCWarning(d->logs, "Failed to connect to (%s %s %s.%s)",
-                    qPrintable(service), qPrintable(path), qPrintable(interface), qPrintable(signal));
+                  qPrintable(service), qPrintable(path), qPrintable(interface), qPrintable(signal));
         return false;
     } else {
         return true;

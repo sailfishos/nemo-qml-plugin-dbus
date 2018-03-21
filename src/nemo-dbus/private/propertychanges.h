@@ -37,8 +37,7 @@
 
 #include <QObject>
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 class ConnectionData;
 
@@ -64,7 +63,7 @@ private:
     void subscriberDestroyed(QObject *subscriber);
     void getProperty(const QString &interface, const QString &property);
 
-    ConnectionData * const m_cache;
+    ConnectionData *const m_cache;
     QList<QObject *> m_subscribers;
     QString m_service;
     QString m_path;

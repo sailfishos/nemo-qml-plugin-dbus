@@ -37,8 +37,7 @@
 
 #include "global.h"
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 Q_DECLARE_LOGGING_CATEGORY(dbus)
 

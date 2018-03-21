@@ -35,8 +35,7 @@
 
 #include <nemo-dbus/connection.h>
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 class NEMODBUS_EXPORT Object
 {
@@ -55,16 +54,15 @@ public:
         return m_connection.call(m_context, m_service, m_path, interface, method, arguments...);
     }
 
-
     template <typename... Arguments>
     QDBusMessage blockingCall(const QString &interface, const QString &method, Arguments... arguments)
     {
         return m_connection.blockingCall(m_service, m_path, interface, method, arguments...);
     }
 
-
     template <typename T, typename Handler>
-    void subscribeToProperty(const QString &interface, const QString &property, const Handler &onChanged)
+    void subscribeToProperty(const QString &interface, const QString &property,
+                             const Handler &onChanged)
     {
         m_connection.subscribeToProperty<T>(m_context, m_service, m_path, interface, property, onChanged);
     }
@@ -72,7 +70,7 @@ public:
     bool connectToSignal(const QString &interface, const QString &signal, const char *slot);
 
 private:
-    QObject * const  m_context;
+    QObject *const m_context;
     Connection m_connection;
     const QString m_service;
     const QString m_path;

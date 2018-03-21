@@ -14,18 +14,18 @@
 ** License version 2.1 as published by the Free Software Foundation
 ** and appearing in the file license.lgpl included in the packaging
 ** of this file.
-** 
+**
 ** This library is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 ** Lesser General Public License for more details.
-** 
+**
 ****************************************************************************************/
 
 #include "declarativedbusinterface.h"
+#include "dbus.h"
 
 #include <QMetaMethod>
-#include <QDBusMetaType>
 #include <QDBusMessage>
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
@@ -384,49 +384,29 @@ void DeclarativeDBusInterface::call(
 template<typename T> static QList<T> toQList(const QVariantList &lst)
 {
     QList<T> arr;
-    foreach(const QVariant &var, lst) {
+    foreach (const QVariant &var, lst) {
         arr << qvariant_cast<T>(var);
     }
     return arr;
 }
 
-static QStringList toQStringList(const QVariantList &lst) {
+static QStringList toQStringList(const QVariantList &lst)
+{
     QStringList arr;
-    foreach(const QVariant &var, lst) {
+    foreach (const QVariant &var, lst) {
         arr << qvariant_cast<QString>(var);
     }
     return arr;
 }
 
-static QByteArray toQByteArray(const QVariantList &lst) {
+static QByteArray toQByteArray(const QVariantList &lst)
+{
     QByteArray arr;
-    foreach(const QVariant &var, lst) {
+    foreach (const QVariant &var, lst) {
         uchar tmp = static_cast<uchar>(var.toUInt());
         arr.append(static_cast<char>(tmp));
     }
     return arr;
-}
-
-static void registerDBusTypes(void)
-{
-    static bool done = false;
-
-    if( !done ) {
-        done = true;
-
-        qDBusRegisterMetaType< QList<bool> >();
-        qDBusRegisterMetaType< QList<int> >();
-        qDBusRegisterMetaType< QList<double> >();
-
-        qDBusRegisterMetaType< QList<quint8> >();
-        qDBusRegisterMetaType< QList<quint16> >();
-        qDBusRegisterMetaType< QList<quint32> >();
-        qDBusRegisterMetaType< QList<quint64> >();
-
-        qDBusRegisterMetaType< QList<qint16> >();
-        qDBusRegisterMetaType< QList<qint32> >();
-        qDBusRegisterMetaType< QList<qint64> >();
-    }
 }
 
 static bool flattenVariantList(QVariant &var, const QVariantList &lst,
@@ -434,7 +414,7 @@ static bool flattenVariantList(QVariant &var, const QVariantList &lst,
 {
     bool res = true;
 
-    switch( typeChar ) {
+    switch (typeChar) {
     case 'b': // BOOLEAN
         var = QVariant::fromValue(toQList<bool>(lst));
         break;
@@ -484,7 +464,7 @@ static void flattenVariantArrayGuessType(QVariant &var)
      * or if the resulting list would be empty: use the
      * value without modification */
     QVariantList arr = var.toList();
-    if( arr.empty() )
+    if (arr.empty())
         return;
 
     /* If all items in the list do not share the same type:
@@ -492,16 +472,24 @@ static void flattenVariantArrayGuessType(QVariant &var)
      * container */
     int t = arr[0].type();
     int n = arr.size();
-    for( int i = 1; i < n; ++i ) {
-        if( arr[i].type() != t )
+    for (int i = 1; i < n; ++i) {
+        if (arr[i].type() != t)
             return;
     }
 
-    switch( t ) {
-    case QVariant::String: flattenVariantList(var, arr, 's'); break;
-    case QVariant::Bool:   flattenVariantList(var, arr, 'b'); break;
-    case QVariant::Int:    flattenVariantList(var, arr, 'i'); break;
-    case QVariant::Double: flattenVariantList(var, arr, 'd'); break;
+    switch (t) {
+    case QVariant::String:
+        flattenVariantList(var, arr, 's');
+        break;
+    case QVariant::Bool:
+        flattenVariantList(var, arr, 'b');
+        break;
+    case QVariant::Int:
+        flattenVariantList(var, arr, 'i');
+        break;
+    case QVariant::Double:
+        flattenVariantList(var, arr, 'd');
+        break;
     default:
         /* Unhandled types are encoded as variant:array:variant:val
          * instead of variant:array:val what we actually want.
@@ -524,7 +512,7 @@ DeclarativeDBusInterface::marshallDBusArgument(QDBusMessage &msg, const QJSValue
 
     QJSValue value = arg.property(QLatin1String("value"));
 
-    if( value.isNull() || value.isUndefined() ) {
+    if (value.isNull() || value.isUndefined()) {
         qWarning() << "DeclarativeDBusInterface::typedCall - Invalid argument";
         qmlInfo(this) << "DeclarativeDBusInterface::typedCall - Invalid argument";
         return false;
@@ -585,12 +573,11 @@ DeclarativeDBusInterface::marshallDBusArgument(QDBusMessage &msg, const QJSValue
             msg << QVariant::fromValue(QDBusUnixFileDescriptor(value.toInt()));
             return true;
 
-        case 'v': // VARIANT
-            {
-                QVariant var = value.toVariant();
-                flattenVariantArrayGuessType(var);
-                msg << QVariant::fromValue(QDBusVariant(var));
-            }
+        case 'v': { // VARIANT
+            QVariant var = value.toVariant();
+            flattenVariantArrayGuessType(var);
+            msg << QVariant::fromValue(QDBusVariant(var));
+        }
             return true;
 
         default:
@@ -607,7 +594,7 @@ DeclarativeDBusInterface::marshallDBusArgument(QDBusMessage &msg, const QJSValue
         QVariant vec = value.toVariant();
         int type = t.at(1).toLatin1();
 
-        if( flattenVariantArrayForceType(vec, type) ) {
+        if (flattenVariantArrayForceType(vec, type)) {
             msg << vec;
             return true;
         }
@@ -625,19 +612,17 @@ DeclarativeDBusInterface::constructMessage(const QString &service,
                                            const QString &method,
                                            const QJSValue &arguments)
 {
-    registerDBusTypes();
-
     QDBusMessage message = QDBusMessage::createMethodCall(service, path, interface, method);
 
     if (arguments.isArray()) {
         quint32 len = arguments.property(QLatin1String("length")).toUInt();
         for (quint32 i = 0; i < len; ++i) {
-            if( !marshallDBusArgument(message, arguments.property(i)) )
+            if (!marshallDBusArgument(message, arguments.property(i)))
                 return QDBusMessage();
         }
     } else if (!arguments.isUndefined()) {
         // arguments is a singular typed value
-        if( !marshallDBusArgument(message, arguments) )
+        if (!marshallDBusArgument(message, arguments))
             return QDBusMessage();
     }
     return message;
@@ -691,7 +676,8 @@ bool DeclarativeDBusInterface::serviceAvailable() const
     discarded. If the function fails \a errorCallback is called if it is not set to \c undefined
     (the default).
 */
-bool DeclarativeDBusInterface::typedCall(const QString &method, const QJSValue &arguments, const QJSValue &callback,
+bool DeclarativeDBusInterface::typedCall(const QString &method, const QJSValue &arguments,
+                                         const QJSValue &callback,
                                          const QJSValue &errorCallback)
 {
     QDBusMessage message = constructMessage(m_service, m_path, m_interface, method, arguments);
@@ -743,9 +729,9 @@ bool DeclarativeDBusInterface::dispatch(
 QVariant DeclarativeDBusInterface::getProperty(const QString &name)
 {
     QDBusMessage message =
-        QDBusMessage::createMethodCall(m_service, m_path,
-                                       PropertyInterface,
-                                       QLatin1String("Get"));
+            QDBusMessage::createMethodCall(m_service, m_path,
+                                           PropertyInterface,
+                                           QLatin1String("Get"));
 
     QVariantList args;
     args.append(m_interface);
@@ -761,7 +747,7 @@ QVariant DeclarativeDBusInterface::getProperty(const QString &name)
     if (reply.arguments().isEmpty())
         return QVariant();
 
-    return unwind(reply.arguments().first());
+    return NemoDBus::demarshallDBusArgument(reply.arguments().first());
 }
 
 /*!
@@ -804,127 +790,6 @@ void DeclarativeDBusInterface::componentComplete()
     connectPropertyHandler();
 }
 
-QVariant DeclarativeDBusInterface::unwind(const QVariant &val, int depth)
-{
-    /* Limit recursion depth to protect against type conversions
-     * that fail to converge to basic qt types within qt variant.
-     *
-     * Using limit >= DBUS_MAXIMUM_TYPE_RECURSION_DEPTH (=32) should
-     * mean we do not bail out too soon on deeply nested but othewise
-     * valid dbus messages. */
-    static const int maximum_dept = 32;
-
-    /* Default to QVariant with isInvalid() == true */
-    QVariant res;
-
-    const int type = val.userType();
-
-    if( ++depth > maximum_dept ) {
-        /* Leave result to invalid variant */
-        qWarning() << "Too deep recursion detected at userType:" << type;
-    }
-    else if (type == QVariant::ByteArray ) {
-        /* Is built-in type, but does not get correctly converted
-         * to qml domain -> convert to variant list */
-        QByteArray arr = val.toByteArray();
-        QVariantList lst;
-        for( int i = 0; i < arr.size(); ++i )
-            lst <<QVariant::fromValue(static_cast<quint8>(arr[i]));
-        res = QVariant::fromValue(lst);
-    }
-    else if (type == val.type()) {
-        /* Already is built-in qt type, use as is */
-        res = val;
-    } else if (type == qMetaTypeId<QDBusVariant>()) {
-        /* Convert QDBusVariant to QVariant */
-        res = unwind(val.value<QDBusVariant>().variant(), depth);
-    } else if (type == qMetaTypeId<QDBusObjectPath>()) {
-        /* Convert QDBusObjectPath to QString */
-        res = val.value<QDBusObjectPath>().path();
-    } else if (type == qMetaTypeId<QDBusSignature>()) {
-        /* Convert QDBusSignature to QString */
-        res =  val.value<QDBusSignature>().signature();
-    } else if (type == qMetaTypeId<QDBusUnixFileDescriptor>()) {
-        /* Convert QDBusUnixFileDescriptor to int */
-        res =  val.value<QDBusUnixFileDescriptor>().fileDescriptor();
-    } else if (type == qMetaTypeId<QDBusArgument>()) {
-        /* Try to deal with everything QDBusArgument could be ... */
-        const QDBusArgument &arg = val.value<QDBusArgument>();
-        const QDBusArgument::ElementType elem = arg.currentType();
-        switch (elem) {
-        case QDBusArgument::BasicType:
-            /* Most of the basic types should be convertible to QVariant.
-             * Recurse anyway to deal with object paths and the like. */
-            res = unwind(arg.asVariant(), depth);
-            break;
-
-        case QDBusArgument::VariantType:
-            /* Try to convert to QVariant. Recurse to check content */
-            res = unwind(arg.asVariant().value<QDBusVariant>().variant(),
-                         depth);
-            break;
-
-        case QDBusArgument::ArrayType:
-            /* Convert dbus array to QVariantList */
-            {
-                QVariantList list;
-                arg.beginArray();
-                while (!arg.atEnd()) {
-                    QVariant tmp = arg.asVariant();
-                    list.append(unwind(tmp, depth));
-                }
-                arg.endArray();
-                res = list;
-            }
-            break;
-
-        case QDBusArgument::StructureType:
-            /* Convert dbus struct to QVariantList */
-            {
-                QVariantList list;
-                arg.beginStructure();
-                while (!arg.atEnd()) {
-                    QVariant tmp = arg.asVariant();
-                    list.append(unwind(tmp, depth));
-                }
-                arg.endStructure();
-                res = QVariant::fromValue(list);
-            }
-            break;
-
-        case QDBusArgument::MapType:
-            /* Convert dbus dict to QVariantMap */
-            {
-                QVariantMap map;
-                arg.beginMap();
-                while (!arg.atEnd()) {
-                    arg.beginMapEntry();
-                    QVariant key = arg.asVariant();
-                    QVariant val = arg.asVariant();
-                    map.insert(unwind(key, depth).toString(),
-                               unwind(val, depth));
-                    arg.endMapEntry();
-                }
-                arg.endMap();
-                res = map;
-            }
-            break;
-
-        default:
-            /* Unhandled types produce invalid QVariant */
-            qWarning() << "Unhandled QDBusArgument element type:" << elem;
-            break;
-        }
-    } else {
-        /* Default to using as is. This should leave for example QDBusError
-         * types in a form that does not look like a string to qml code. */
-        res = val;
-        qWarning() << "Unhandled QVariant userType:" << type;
-    }
-
-    return res;
-}
-
 void DeclarativeDBusInterface::pendingCallFinished(QDBusPendingCallWatcher *watcher)
 {
     QPair<QJSValue, QJSValue> callbacks = m_pendingCalls.take(watcher);
@@ -957,7 +822,7 @@ void DeclarativeDBusInterface::pendingCallFinished(QDBusPendingCallWatcher *watc
 
     QVariantList arguments = message.arguments();
     foreach (QVariant argument, arguments) {
-        callbackArguments << callback.engine()->toScriptValue<QVariant>(unwind(argument));
+        callbackArguments << callback.engine()->toScriptValue<QVariant>(NemoDBus::demarshallDBusArgument(argument));
     }
 
     QJSValue result = callback.call(callbackArguments);
@@ -975,7 +840,7 @@ void DeclarativeDBusInterface::signalHandler(const QDBusMessage &message)
 
     for (int i = 0; i < qMin(arguments.length(), 10); ++i) {
         const QVariant &tmp = arguments.at(i);
-        normalized.append(unwind(tmp));
+        normalized.append(NemoDBus::demarshallDBusArgument(tmp));
     }
 
     for (int i = 0; i < normalized.count(); ++i) {
@@ -987,8 +852,8 @@ void DeclarativeDBusInterface::signalHandler(const QDBusMessage &message)
     if (!method.isValid())
         return;
 
-    method.invoke(this, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7],
-                  args[8], args[9]);
+    method.invoke(this, args[0], args[1], args[2], args[3], args[4],
+                  args[5], args[6], args[7], args[8], args[9]);
 }
 
 static int indexOfMangledName(const QString &name, const QStringList &candidates)
@@ -997,8 +862,8 @@ static int indexOfMangledName(const QString &name, const QStringList &candidates
     if (index >= 0) {
         return index;
     } else if (name.length() > 2
-                && name.startsWith(QStringLiteral("rc"))
-                && name.at(2).isUpper()) {
+               && name.startsWith(QStringLiteral("rc"))
+               && name.at(2).isUpper()) {
         // API version 1.0 name mangling:
         // Connect QML signals with the prefix 'rc' followed by an upper-case
         // letter to DBus signals of the same name minus the prefix.
@@ -1061,7 +926,7 @@ void DeclarativeDBusInterface::introspectionDataReceived(const QString &introspe
 
     // Skip over signals defined in DeclarativeDBusInterface and its parent classes
     // so only signals defined in qml are connected to.
-    const QMetaObject * const meta = metaObject();
+    const QMetaObject *const meta = metaObject();
     for (int i = staticMetaObject.methodCount(); i < meta->methodCount(); ++i) {
         QMetaMethod method = meta->method(i);
 
@@ -1153,7 +1018,7 @@ void DeclarativeDBusInterface::connectSignalHandler()
 
         foreach (const QString &signal, m_signals.keys()) {
             conn.connect(m_service, m_path, m_interface, signal,
-                            this, SLOT(signalHandler(QDBusMessage)));
+                         this, SLOT(signalHandler(QDBusMessage)));
         }
 
         connectPropertyHandler();
@@ -1163,12 +1028,12 @@ void DeclarativeDBusInterface::connectSignalHandler()
 void DeclarativeDBusInterface::connectPropertyHandler()
 {
     if (!m_componentCompleted
-                || m_propertiesConnected
-                || (!m_propertiesEnabled && !m_signalsEnabled)
-                || m_service.isEmpty()
-                || m_path.isEmpty()
-                || m_interface.isEmpty()
-                || !serviceAvailable()) {
+            || m_propertiesConnected
+            || (!m_propertiesEnabled && !m_signalsEnabled)
+            || m_service.isEmpty()
+            || m_path.isEmpty()
+            || m_interface.isEmpty()
+            || !serviceAvailable()) {
         return;
     }
 
@@ -1248,7 +1113,7 @@ void DeclarativeDBusInterface::updatePropertyValues(const QDBusArgument &argumen
             const QString name = argument.asVariant().toString();
             QMetaProperty property = m_properties.value(name);
             if (property.isValid()) {
-                property.write(this, unwind(argument.asVariant()));
+                property.write(this, NemoDBus::demarshallDBusArgument(argument.asVariant()));
             }
 
             argument.endMapEntry();
@@ -1272,9 +1137,9 @@ void DeclarativeDBusInterface::introspect()
     m_introspected = true;
 
     QDBusMessage message =
-        QDBusMessage::createMethodCall(m_service, m_path,
-                                       QLatin1String("org.freedesktop.DBus.Introspectable"),
-                                       QLatin1String("Introspect"));
+            QDBusMessage::createMethodCall(m_service, m_path,
+                                           QLatin1String("org.freedesktop.DBus.Introspectable"),
+                                           QLatin1String("Introspect"));
 
     if (message.type() == QDBusMessage::InvalidMessage)
         return;

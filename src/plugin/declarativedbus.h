@@ -14,12 +14,12 @@
 ** License version 2.1 as published by the Free Software Foundation
 ** and appearing in the file license.lgpl included in the packaging
 ** of this file.
-** 
+**
 ** This library is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 ** Lesser General Public License for more details.
-** 
+**
 ****************************************************************************************/
 
 #ifndef DECLARATIVEDBUS_H
@@ -34,7 +34,7 @@ class DeclarativeDBus : public QObject
     Q_ENUMS(BusType)
 
 public:
-    DeclarativeDBus(QObject *parent=0);
+    DeclarativeDBus(QObject *parent = 0);
     ~DeclarativeDBus();
 
     enum BusType {

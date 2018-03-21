@@ -41,15 +41,19 @@
 #include <QDBusVariant>
 #include <QVector>
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 class Connection;
 
-template <typename Argument> inline QVariant marshallArgument(const Argument &argument) {
-    return QVariant::fromValue(argument); }
-inline QVariant marshallArgument(const QVariant &argument) {
-    return QVariant::fromValue(QDBusVariant(argument)); }
+template <typename Argument> inline QVariant marshallArgument(const Argument &argument)
+{
+    return QVariant::fromValue(argument);
+}
+
+inline QVariant marshallArgument(const QVariant &argument)
+{
+    return QVariant::fromValue(QDBusVariant(argument));
+}
 
 template <typename Argument> inline Argument demarshallArgument(const QVariant &argument)
 {
@@ -62,10 +66,15 @@ template <typename Argument> inline Argument demarshallArgument(const QVariant &
     }
 }
 
-template <> inline QDBusArgument demarshallArgument<QDBusArgument>(const QVariant &argument) {
-    return argument.value<QDBusArgument>(); }
-template <> inline QVariant demarshallArgument<QVariant>(const QVariant &argument) {
-    return argument.value<QDBusVariant>().variant(); }
+template <> inline QDBusArgument demarshallArgument<QDBusArgument>(const QVariant &argument)
+{
+    return argument.value<QDBusArgument>();
+}
+
+template <> inline QVariant demarshallArgument<QVariant>(const QVariant &argument)
+{
+    return argument.value<QDBusVariant>().variant();
+}
 
 inline void appendArguments(QVariantList &) {}
 
@@ -84,11 +93,11 @@ template <typename... Arguments> inline QVariantList marshallArguments(Arguments
 }
 
 template <typename... Arguments> inline bool send(
-            const QDBusConnection &connection,
-            const QString &path,
-            const QString &interface,
-            const QString &method,
-            Arguments... arguments)
+        const QDBusConnection &connection,
+        const QString &path,
+        const QString &interface,
+        const QString &method,
+        Arguments... arguments)
 {
     QDBusMessage message = QDBusMessage::createMethodCall(QString(), path, interface, method);
     message.setArguments(marshallArguments(arguments...));
@@ -96,14 +105,17 @@ template <typename... Arguments> inline bool send(
 }
 
 template <typename... Arguments> inline bool send(
-            const QString &connectionName,
-            const QString &path,
-            const QString &interface,
-            const QString &method,
-            Arguments... arguments)
+        const QString &connectionName,
+        const QString &path,
+        const QString &interface,
+        const QString &method,
+        Arguments... arguments)
 {
     return send(QDBusConnection(connectionName), path, interface, method, arguments...);
 }
+
+NEMODBUS_EXPORT QVariant demarshallDBusArgument(const QVariant &val, int depth = 0);
+NEMODBUS_EXPORT void registerDBusTypes();
 
 NEMODBUS_EXPORT Connection systemBus();
 NEMODBUS_EXPORT Connection sessionBus();

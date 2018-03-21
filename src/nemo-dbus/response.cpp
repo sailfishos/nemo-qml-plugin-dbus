@@ -34,8 +34,7 @@
 
 #include <QLoggingCategory>
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 Response::Response(const QLoggingCategory &logs, QObject *parent)
     : QObject(parent)
@@ -52,10 +51,10 @@ void Response::callReturn(const QDBusMessage &message)
     deleteLater();
 
     qCDebug(logs, "DBus reply (%s %s %s.%s)",
-                qPrintable(message.service()),
-                qPrintable(message.path()),
-                qPrintable(message.interface()),
-                qPrintable(message.member()));
+            qPrintable(message.service()),
+            qPrintable(message.path()),
+            qPrintable(message.interface()),
+            qPrintable(message.member()));
 
     emit success(message.arguments());
 }
@@ -65,12 +64,12 @@ void Response::callError(const QDBusError &error, const QDBusMessage &message)
     deleteLater();
 
     qCWarning(logs, "DBus error (%s %s %s.%s): %s %s",
-                qPrintable(message.service()),
-                qPrintable(message.path()),
-                qPrintable(message.interface()),
-                qPrintable(message.member()),
-                qPrintable(error.name()),
-                qPrintable(error.message()));
+              qPrintable(message.service()),
+              qPrintable(message.path()),
+              qPrintable(message.interface()),
+              qPrintable(message.member()),
+              qPrintable(error.name()),
+              qPrintable(error.message()));
 
     emit failure(error);
 }

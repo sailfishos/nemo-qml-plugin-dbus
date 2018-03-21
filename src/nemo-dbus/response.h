@@ -38,13 +38,12 @@
 #include <QDBusPendingCallWatcher>
 #include <QDBusPendingReply>
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 class NEMODBUS_EXPORT Response : public QObject
 {
     Q_OBJECT
-public:    
+public:
     ~Response();
 
     template <typename... Arguments, typename Handler>
@@ -67,23 +66,34 @@ signals:
     void failure(const QDBusError &error);
 
 private slots:
-   void callReturn(const QDBusMessage &message);
-   void callError(const QDBusError &error, const QDBusMessage &message);
+    void callReturn(const QDBusMessage &message);
+    void callError(const QDBusError &error, const QDBusMessage &message);
 
 private:
     friend class ConnectionData;
 
-    template <typename Handler> static void invoke(const Handler &handler, const QVariantList &) { handler(); }
+    template <typename Handler> static void invoke(const Handler &handler, const QVariantList &)
+    {
+        handler();
+    }
     template <typename Handler, typename Argument0> static void invoke(
-            const Handler &handler, const QVariantList &arguments) {
-        handler(demarshallArgument<Argument0>(arguments.value(0))); }
+            const Handler &handler, const QVariantList &arguments)
+    {
+        handler(demarshallArgument<Argument0>(arguments.value(0)));
+    }
     template <typename Handler, typename Argument0, typename Argument1> static void invoke(
-            const Handler &handler, const QVariantList &arguments) {
-        handler(demarshallArgument<Argument0>(arguments.value(0)), demarshallArgument<Argument1>(arguments.value(1))); }
+            const Handler &handler, const QVariantList &arguments)
+    {
+        handler(demarshallArgument<Argument0>(arguments.value(0)),
+                demarshallArgument<Argument1>(arguments.value(1)));
+    }
 
     explicit Response(const QLoggingCategory &logs, QObject *parent);
 
-    const QLoggingCategory &logs() { return m_logs; }
+    const QLoggingCategory &logs()
+    {
+        return m_logs;
+    }
 
     const QLoggingCategory &m_logs;
 };

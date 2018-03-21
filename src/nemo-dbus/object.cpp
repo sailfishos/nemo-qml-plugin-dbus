@@ -32,10 +32,10 @@
 
 #include "object.h"
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
-Object::Object(QObject *context, const Connection &connection, const QString &service, const QString &path)
+Object::Object(QObject *context, const Connection &connection, const QString &service,
+               const QString &path)
     : m_context(context)
     , m_connection(connection)
     , m_service(service)
