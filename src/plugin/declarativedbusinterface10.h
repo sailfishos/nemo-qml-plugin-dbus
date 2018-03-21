@@ -14,12 +14,12 @@
 ** License version 2.1 as published by the Free Software Foundation
 ** and appearing in the file license.lgpl included in the packaging
 ** of this file.
-** 
+**
 ** This library is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 ** Lesser General Public License for more details.
-** 
+**
 ****************************************************************************************/
 
 #ifndef DECLARATIVEDBUSINTERFACE10_H
@@ -44,7 +44,7 @@ public:
 
     // Deprecated, newer versions have typedCall with an optional callback parameters
     Q_INVOKABLE void typedCallWithReturn(const QString &method, const QJSValue &arguments,
-            const QJSValue &callback)
+                                         const QJSValue &callback)
     {
         typedCall(method, arguments, callback);
     }

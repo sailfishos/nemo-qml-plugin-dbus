@@ -14,12 +14,12 @@
 ** License version 2.1 as published by the Free Software Foundation
 ** and appearing in the file license.lgpl included in the packaging
 ** of this file.
-** 
+**
 ** This library is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 ** Lesser General Public License for more details.
-** 
+**
 ****************************************************************************************/
 
 #ifndef DECLARATIVEDBUSINTERFACE_H
@@ -91,12 +91,12 @@ public:
     void propertiesConnected() const;
 
     Q_INVOKABLE void call(const QString &method,
-                const QJSValue &arguments = QJSValue::UndefinedValue,
-                const QJSValue &callback = QJSValue::UndefinedValue,
-                const QJSValue &errorCallback = QJSValue::UndefinedValue);
+                          const QJSValue &arguments = QJSValue::UndefinedValue,
+                          const QJSValue &callback = QJSValue::UndefinedValue,
+                          const QJSValue &errorCallback = QJSValue::UndefinedValue);
     Q_INVOKABLE bool typedCall(const QString &method, const QJSValue &arguments,
-            const QJSValue &callback=QJSValue::UndefinedValue,
-            const QJSValue &errorCallback=QJSValue::UndefinedValue);
+                               const QJSValue &callback = QJSValue::UndefinedValue,
+                               const QJSValue &errorCallback = QJSValue::UndefinedValue);
 
     Q_INVOKABLE QVariant getProperty(const QString &name);
     Q_INVOKABLE void setProperty(const QString &name, const QVariant &newValue);
@@ -155,7 +155,8 @@ private:
     QString m_path;
     QString m_interface;
     DeclarativeDBus::BusType m_bus;
-    QMap<QDBusPendingCallWatcher *, QPair<QJSValue, QJSValue> > m_pendingCalls; // pair: success and error callback
+    QMap<QDBusPendingCallWatcher *, QPair<QJSValue, QJSValue> >
+    m_pendingCalls; // pair: success and error callback
     QMap<QString, QMetaMethod> m_signals;
     QMap<QString, QMetaProperty> m_properties;
     bool m_componentCompleted;

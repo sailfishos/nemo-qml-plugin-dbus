@@ -38,8 +38,7 @@
 #include <QDBusUnixFileDescriptor>
 #include <QDebug>
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 class SystemBus : public Connection
 {
@@ -91,20 +90,18 @@ QVariant demarshallDBusArgument(const QVariant &val, int depth)
 
     const int type = val.userType();
 
-    if( ++depth > maximum_dept ) {
+    if (++depth > maximum_dept) {
         /* Leave result to invalid variant */
         qWarning() << "Too deep recursion detected at userType:" << type;
-    }
-    else if (type == QVariant::ByteArray ) {
+    } else if (type == QVariant::ByteArray) {
         /* Is built-in type, but does not get correctly converted
          * to qml domain -> convert to variant list */
         QByteArray arr = val.toByteArray();
         QVariantList lst;
-        for( int i = 0; i < arr.size(); ++i )
+        for (int i = 0; i < arr.size(); ++i)
             lst << QVariant::fromValue(static_cast<quint8>(arr[i]));
         res = QVariant::fromValue(lst);
-    }
-    else if (type == val.type()) {
+    } else if (type == val.type()) {
         /* Already is built-in qt type, use as is */
         res = val;
     } else if (type == qMetaTypeId<QDBusVariant>()) {
@@ -201,7 +198,7 @@ void registerDBusTypes()
 {
     static bool done = false;
 
-    if(!done) {
+    if (!done) {
         done = true;
 
         qDBusRegisterMetaType< QList<bool> >();

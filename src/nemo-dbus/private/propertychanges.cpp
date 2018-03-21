@@ -37,8 +37,7 @@
 
 #include "logging.h"
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 PropertyChanges::PropertyChanges(ConnectionData *cache, const QString &service, const QString &path)
     : QObject(cache)
@@ -97,7 +96,7 @@ void PropertyChanges::getProperty(const QString &interface, const QString &prope
 void PropertyChanges::propertiesChanged(
         const QString &interface, const QVariantMap &changed, const QStringList &invalidated)
 {
-    for (auto it = changed.begin(); it!= changed.end(); ++it) {
+    for (auto it = changed.begin(); it != changed.end(); ++it) {
         qCDebug(m_cache->logs, "DBus property changed (%s %s %s.%s)",
                 qPrintable(m_service), qPrintable(m_path), qPrintable(interface), qPrintable(it.key()));
 

@@ -32,8 +32,7 @@
 
 #include "interface.h"
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 Interface::Interface(
         QObject *context,

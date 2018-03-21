@@ -35,8 +35,7 @@
 
 #include <nemo-dbus/object.h>
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 class NEMODBUS_EXPORT Interface : private Object
 {

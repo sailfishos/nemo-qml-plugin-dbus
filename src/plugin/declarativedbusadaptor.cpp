@@ -14,12 +14,12 @@
 ** License version 2.1 as published by the Free Software Foundation
 ** and appearing in the file license.lgpl included in the packaging
 ** of this file.
-** 
+**
 ** This library is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 ** Lesser General Public License for more details.
-** 
+**
 ****************************************************************************************/
 
 #include "declarativedbusadaptor.h"
@@ -243,11 +243,16 @@ QString DeclarativeDBusAdaptor::introspect(const QString &) const
 QDBusArgument &operator << (QDBusArgument &argument, const QVariant &value)
 {
     switch (value.type()) {
-    case QVariant::String:      return argument << value.toString();
-    case QVariant::StringList:  return argument << value.toStringList();
-    case QVariant::Int:         return argument << value.toInt();
-    case QVariant::Bool:        return argument << value.toBool();
-    case QVariant::Double:      return argument << value.toDouble();
+    case QVariant::String:
+        return argument << value.toString();
+    case QVariant::StringList:
+        return argument << value.toStringList();
+    case QVariant::Int:
+        return argument << value.toInt();
+    case QVariant::Bool:
+        return argument << value.toBool();
+    case QVariant::Double:
+        return argument << value.toDouble();
     default:
         if (value.userType() == qMetaTypeId<float>()) {
             return argument << value.value<float>();
@@ -256,12 +261,13 @@ QDBusArgument &operator << (QDBusArgument &argument, const QVariant &value)
     }
 }
 
-bool DeclarativeDBusAdaptor::handleMessage(const QDBusMessage &message, const QDBusConnection &connection)
+bool DeclarativeDBusAdaptor::handleMessage(const QDBusMessage &message,
+                                           const QDBusConnection &connection)
 {
     QVariant variants[10];
     QGenericArgument arguments[10];
 
-    const QMetaObject * const meta = metaObject();
+    const QMetaObject *const meta = metaObject();
     const QVariantList dbusArguments = message.arguments();
 
     QString member = message.member();
@@ -276,13 +282,13 @@ bool DeclarativeDBusAdaptor::handleMessage(const QDBusMessage &message, const QD
             interface = dbusArguments.value(0).toString();
             member = dbusArguments.value(1).toString();
 
-            const QMetaObject * const meta = metaObject();
+            const QMetaObject *const meta = metaObject();
             if (!member.isEmpty() && member.at(0).isUpper())
                 member = "rc" + member;
 
             for (int propertyIndex = meta->propertyOffset();
-                        propertyIndex < meta->propertyCount();
-                        ++propertyIndex) {
+                 propertyIndex < meta->propertyCount();
+                 ++propertyIndex) {
                 QMetaProperty property = meta->property(propertyIndex);
 
                 if (QLatin1String(property.name()) != member)
@@ -318,8 +324,8 @@ bool DeclarativeDBusAdaptor::handleMessage(const QDBusMessage &message, const QD
             map.beginMap(qMetaTypeId<QString>(), qMetaTypeId<QDBusVariant>());
 
             for (int propertyIndex = meta->propertyOffset();
-                        propertyIndex < meta->propertyCount();
-                        ++propertyIndex) {
+                 propertyIndex < meta->propertyCount();
+                 ++propertyIndex) {
                 QMetaProperty property = meta->property(propertyIndex);
 
                 QString propertyName = QLatin1String(property.name());
@@ -361,13 +367,13 @@ bool DeclarativeDBusAdaptor::handleMessage(const QDBusMessage &message, const QD
             interface = dbusArguments.value(0).toString();
             member = dbusArguments.value(1).toString();
 
-            const QMetaObject * const meta = metaObject();
+            const QMetaObject *const meta = metaObject();
             if (!member.isEmpty() && member.at(0).isUpper())
                 member = "rc" + member;
 
             for (int propertyIndex = meta->propertyOffset();
-                        propertyIndex < meta->propertyCount();
-                        ++propertyIndex) {
+                 propertyIndex < meta->propertyCount();
+                 ++propertyIndex) {
                 QMetaProperty property = meta->property(propertyIndex);
 
                 if (QLatin1String(property.name()) != member)

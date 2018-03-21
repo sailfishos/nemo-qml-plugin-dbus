@@ -32,8 +32,7 @@
 
 #include "logging.h"
 
-namespace NemoDBus
-{
+namespace NemoDBus {
 
 Q_LOGGING_CATEGORY(dbus, "org.nemomobile.dbus", QtWarningMsg)
 
