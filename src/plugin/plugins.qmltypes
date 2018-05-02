@@ -44,25 +44,6 @@ Module {
         }
     }
     Component {
-        name: "DeclarativeDBusAdaptor10"
-        prototype: "DeclarativeDBusAdaptor"
-        exports: ["Nemo.DBus/DBusAdaptor 1.0"]
-        exportMetaObjectRevisions: [0]
-        Enum {
-            name: "BusType"
-            values: {
-                "SystemBus": 0,
-                "SessionBus": 1
-            }
-        }
-        Property { name: "busType"; type: "DeclarativeDBus::BusType" }
-        Method {
-            name: "emitSignalWithArguments"
-            Parameter { name: "name"; type: "string" }
-            Parameter { name: "arguments"; type: "QJSValue" }
-        }
-    }
-    Component {
         name: "DeclarativeDBusInterface"
         prototype: "QObject"
         exports: ["Nemo.DBus/DBusInterface 2.0"]
@@ -127,27 +108,6 @@ Module {
             name: "setProperty"
             Parameter { name: "name"; type: "string" }
             Parameter { name: "newValue"; type: "QVariant" }
-        }
-    }
-    Component {
-        name: "DeclarativeDBusInterface10"
-        prototype: "DeclarativeDBusInterface"
-        exports: ["Nemo.DBus/DBusInterface 1.0"]
-        exportMetaObjectRevisions: [0]
-        Enum {
-            name: "BusType"
-            values: {
-                "SystemBus": 0,
-                "SessionBus": 1
-            }
-        }
-        Property { name: "destination"; type: "string" }
-        Property { name: "busType"; type: "DeclarativeDBus::BusType" }
-        Method {
-            name: "typedCallWithReturn"
-            Parameter { name: "method"; type: "string" }
-            Parameter { name: "arguments"; type: "QJSValue" }
-            Parameter { name: "callback"; type: "QJSValue" }
         }
     }
     Component { name: "QDBusVirtualObject"; prototype: "QObject" }
