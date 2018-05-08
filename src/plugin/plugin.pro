@@ -23,13 +23,9 @@ SOURCES += \
     plugin.cpp \
     declarativedbus.cpp \
     declarativedbusadaptor.cpp \
-    declarativedbusadaptor10.cpp \
     declarativedbusinterface.cpp \
-    declarativedbusinterface10.cpp
 
 HEADERS += \
     declarativedbus.h \
     declarativedbusadaptor.h \
-    declarativedbusadaptor10.h \
     declarativedbusinterface.h \
-    declarativedbusinterface10.h
