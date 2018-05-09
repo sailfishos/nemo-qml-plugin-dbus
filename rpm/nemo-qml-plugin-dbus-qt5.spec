@@ -4,7 +4,7 @@ Version:    2.1.16
 Release:    1
 Group:      System/Libraries
 License:    LGPLv2.1
-URL:        https://github.com/nemomobile/nemo-qml-plugin-dbus
+URL:        https://git.merproject.org/mer-core/nemo-qml-plugin-dbus
 Source0:    %{name}-%{version}.tar.bz2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
