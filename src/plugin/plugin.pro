@@ -19,6 +19,9 @@ qmldir.files += \
 qmldir.path +=  $$target.path
 INSTALLS += qmldir
 
+qmltypes.commands = qmlplugindump -nonrelocatable Nemo.DBus 2.0 > $$PWD/plugins.qmltypes
+QMAKE_EXTRA_TARGETS += qmltypes
+
 SOURCES += \
     plugin.cpp \
     declarativedbus.cpp \
