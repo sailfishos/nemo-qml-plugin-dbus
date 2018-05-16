@@ -14,10 +14,13 @@ LIBS += -L../nemo-dbus -lnemodbus
 INCLUDEPATH += $$PWD/.. $$PWD/../nemo-dbus
 
 qmldir.files += \
-        $$_PRO_FILE_PWD_/qmldir \
-        $$_PRO_FILE_PWD_/plugins.qmltypes
+        qmldir \
+        plugins.qmltypes
 qmldir.path +=  $$target.path
 INSTALLS += qmldir
+
+qmltypes.commands = qmlplugindump -nonrelocatable Nemo.DBus 2.0 > $$PWD/plugins.qmltypes
+QMAKE_EXTRA_TARGETS += qmltypes
 
 SOURCES += \
     plugin.cpp \
