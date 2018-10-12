@@ -114,7 +114,7 @@
             typedCall('RegisterObject',
                       { 'type': 'o', 'value': '/example/object/path' },
                       function(result) { console.log('call completed with:', result) },
-                      function() { console.log('call failed') })
+                      function(error, message) { console.log('call failed', error, 'message:', message) })
         }
 
         // Location function to call remote method Update
@@ -348,7 +348,7 @@ QVariantList DeclarativeDBusInterface::argumentsFromScriptValue(const QJSValue &
 }
 
 /*!
-    \qmlmethod void DBusInterface::call(string method, variant arguments)
+    \qmlmethod void DBusInterface::call(string method, variant arguments, variant callback, variant errorCallback)
 
     Call a D-Bus method with the name \a method on the object with \a arguments as either a single
     value or an array. For a function with no arguments, pass in \c undefined.
@@ -801,7 +801,9 @@ void DeclarativeDBusInterface::pendingCallFinished(QDBusPendingCallWatcher *watc
     if (reply.isError()) {
         QJSValue errorCallback = callbacks.second;
         if (errorCallback.isCallable()) {
-            QJSValue result = errorCallback.call();
+            QDBusError error = reply.error();
+            QJSValueList args = { QJSValue(error.name()), QJSValue(error.message()) };
+            QJSValue result = errorCallback.call(args);
             if (result.isError()) {
                 qmlInfo(this) << "Error executing error handling callback";
             }
