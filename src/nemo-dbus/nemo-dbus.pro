@@ -46,7 +46,7 @@ public_headers.path = /usr/include/nemo-dbus
 private_headers.files = $$PRIVATE_HEADERS
 private_headers.path = /usr/include/nemo-dbus/private
 
-target.path = /usr/lib
+target.path = $$[QT_INSTALL_LIBS]
 
 QMAKE_PKGCONFIG_NAME = nemodbus
 QMAKE_PKGCONFIG_DESCRIPTION = Nemo library for DBus

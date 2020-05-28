@@ -2,7 +2,6 @@ Name:       nemo-qml-plugin-dbus-qt5
 Summary:    DBus plugin for Nemo Mobile
 Version:    2.1.16
 Release:    1
-Group:      System/Libraries
 License:    LGPLv2.1
 URL:        https://git.merproject.org/mer-core/nemo-qml-plugin-dbus
 Source0:    %{name}-%{version}.tar.bz2
