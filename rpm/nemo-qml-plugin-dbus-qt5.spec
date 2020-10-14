@@ -2,7 +2,7 @@ Name:       nemo-qml-plugin-dbus-qt5
 Summary:    DBus plugin for Nemo Mobile
 Version:    2.1.16
 Release:    1
-License:    LGPLv2.1
+License:    BSD and LGPLv2
 URL:        https://git.merproject.org/mer-core/nemo-qml-plugin-dbus
 Source0:    %{name}-%{version}.tar.bz2
 BuildRequires:  pkgconfig(Qt5Core)
@@ -15,7 +15,6 @@ BuildRequires:  mer-qdoc-template
 
 %package devel
 Summary:    Development libraries for nemo
-Group:      Development/Libraries
 Requires:   %{name} = %{version}-%{release}
 Requires:   pkgconfig(Qt5DBus)
 
@@ -24,7 +23,6 @@ Requires:   pkgconfig(Qt5DBus)
 
 %package tests
 Summary:    DBus plugin tests
-Group:      System/Libraries
 Requires:   %{name} = %{version}-%{release}
 Requires:   qt5-qtdeclarative-import-qttest
 Requires:   qt5-qtdeclarative-devel-tools
@@ -37,7 +35,6 @@ BuildRequires:  pkgconfig(dbus-glib-1)
 
 %package doc
 Summary:    DBus plugin documentation
-Group:      System/Libraries
 
 %description doc
 %{summary}.
@@ -72,6 +69,7 @@ sed 's/Nemo.DBus/org.nemomobile.dbus/' < src/plugin/qmldir > %{buildroot}%{_libd
 %{_libdir}/qt5/qml/Nemo/DBus/libnemodbus.so
 %{_libdir}/qt5/qml/Nemo/DBus/qmldir
 %{_libdir}/qt5/qml/Nemo/DBus/plugins.qmltypes
+%license license.lgpl
 
 # org.nemomobile.dbus legacy import
 %dir %{_libdir}/qt5/qml/org/nemomobile/dbus
