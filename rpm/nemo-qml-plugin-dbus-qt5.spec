@@ -48,7 +48,6 @@ make -C tests/dbustestd  %{?_smp_mflags}
 make  %{?_smp_mflags} docs
 
 %install
-rm -rf %{buildroot}
 %qmake5_install
 make -C tests/dbustestd install ROOT=%{buildroot} VERS=%{version}
 make install_docs INSTALL_ROOT=%{buildroot}
