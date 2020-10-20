@@ -1,0 +1,3 @@
+[submodule "dbus-gmain"]
+	path = tests/dbustestd/dbus-gmain
+	url = https://github.com/sailfishos-mirror/dbus-glib.git
