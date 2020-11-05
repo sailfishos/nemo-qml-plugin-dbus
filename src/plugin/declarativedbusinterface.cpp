@@ -1120,6 +1120,7 @@ void DeclarativeDBusInterface::updatePropertyValues(const QDBusArgument &argumen
 
             argument.endMapEntry();
         }
+        argument.endMap();
     }
 }
 
