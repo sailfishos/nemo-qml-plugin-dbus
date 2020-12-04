@@ -1,4 +1,4 @@
-# ----------------------------------------------------------- -*- mode: sh -*-
+# ----------------------------------------------------------- -*- mode: makefile -*-
 # Config
 # ----------------------------------------------------------------------------
 
@@ -6,6 +6,25 @@ VERS       ?= 0.0.0
 ROOT       ?= /tmp/nemo-qml-plugin-dbus
 PLUGIN_DIR ?= /opt/tests/nemo-qml-plugins-qt5/dbus/
 DBUS_DIR   ?= /usr/share/dbus-1
+
+DBUS_GMAIN_DIR := dbus-gmain
+
+# ----------------------------------------------------------------------------
+# DBUS_GMAIN
+# ----------------------------------------------------------------------------
+
+# The dbus-gmain submodule contains sources that have
+# issues and do not compile cleanly. As the content is
+# what it is, silence warnings etc when compiling source
+# files from there...
+
+DBUS_GMAIN_CPPFLAGS += -I.
+DBUS_GMAIN_CFLAGS   += -Wno-unused-parameter
+DBUS_GMAIN_CFLAGS   += -Wno-cast-function-type
+DBUS_GMAIN_CFLAGS   += -Wno-missing-field-initializers
+
+$(DBUS_GMAIN_DIR)/%.o : CPPFLAGS += $(DBUS_GMAIN_CPPFLAGS)
+$(DBUS_GMAIN_DIR)/%.o : CFLAGS   += $(DBUS_GMAIN_CFLAGS)
 
 # ----------------------------------------------------------------------------
 # List of targets to build
@@ -56,7 +75,7 @@ LDLIBS   += -Wl,--as-needed
 # ----------------------------------------------------------------------------
 
 PKG_NAMES += glib-2.0
-PKG_NAMES += dbus-glib-1
+PKG_NAMES += dbus-1
 
 maintenance  = clean distclean mostlyclean
 intersection = $(strip $(foreach w,$1, $(filter $w,$2)))
@@ -80,7 +99,7 @@ LDLIBS   += $(PKG_LDLIBS)
 # Explicit dependencies
 # ----------------------------------------------------------------------------
 
-dbustestd : dbustestd.o
+dbustestd : dbustestd.o $(DBUS_GMAIN_DIR)/dbus-gmain.o
 
 install::
 	install -m755 -d $(ROOT)$(PLUGIN_DIR)/bin

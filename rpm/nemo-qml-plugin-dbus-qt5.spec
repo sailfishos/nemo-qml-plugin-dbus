@@ -28,7 +28,6 @@ Requires:   qt5-qtdeclarative-import-qttest
 Requires:   qt5-qtdeclarative-devel-tools
 BuildRequires:  pkgconfig(glib-2.0)
 BuildRequires:  pkgconfig(dbus-1)
-BuildRequires:  pkgconfig(dbus-glib-1)
 
 %description tests
 %{summary}.
@@ -49,7 +48,6 @@ make -C tests/dbustestd  %{?_smp_mflags}
 make  %{?_smp_mflags} docs
 
 %install
-rm -rf %{buildroot}
 %qmake5_install
 make -C tests/dbustestd install ROOT=%{buildroot} VERS=%{version}
 make install_docs INSTALL_ROOT=%{buildroot}

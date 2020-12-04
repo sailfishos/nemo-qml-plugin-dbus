@@ -45,7 +45,9 @@
 #include <fcntl.h>
 #include <syslog.h>
 
-#include <dbus/dbus-glib-lowlevel.h>
+#include <glib.h>
+#include <dbus/dbus.h>
+#include "dbus-gmain/dbus-gmain.h"
 
 #define log_emit(LEV,FMT,ARGS...) syslog(LEV, FMT, ## ARGS)
 
@@ -1103,7 +1105,7 @@ service_init(void)
         goto EXIT;
     }
 
-    dbus_connection_setup_with_g_main(service_con, NULL);
+    dbus_gmain_set_up_connection(service_con, NULL);
 
     if( !dbus_connection_add_filter(service_con, service_filter_cb, 0,0) ) {
         log_emit(LOG_CRIT, "add message filter failed");
