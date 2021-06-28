@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2016 Jolla Ltd
- * Contact: Andrew den Exter <andrew.den.exter@jolla.com>
+ * Copyright (C) 2016 - 2021 Jolla Ltd.
+ * Copyright (C) 2021 Open Mobile Platform LLC.
  *
  * You may use this file under the terms of the BSD license as follows:
  *
@@ -114,8 +114,8 @@ QVariant demarshallDBusArgument(const QVariant &val, int depth)
         /* Convert QDBusSignature to QString */
         res =  val.value<QDBusSignature>().signature();
     } else if (type == qMetaTypeId<QDBusUnixFileDescriptor>()) {
-        /* Convert QDBusUnixFileDescriptor to int */
-        res =  val.value<QDBusUnixFileDescriptor>().fileDescriptor();
+        /* Ignore, leave it to the receiver to extract the file descriptor */
+        res = val;
     } else if (type == qMetaTypeId<QDBusArgument>()) {
         /* Try to deal with everything QDBusArgument could be ... */
         const QDBusArgument &arg = val.value<QDBusArgument>();

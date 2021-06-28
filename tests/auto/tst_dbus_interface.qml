@@ -187,7 +187,6 @@ TestCase {
         repr, {type:'g',value:"tussi"},           "repr: signature",             'signature:"tussi"',
         echo, {type:'g',value:"tussi"},           "echo: signature",             "tussi",
         repr, {type:'h',value:2},                 "repr: fd",                    /^fd:[1-9][0-9]*$/,
-        echo, {type:'h',value:2},                 "echo: fd",                    /^[1-9][0-9]*$/,
         repr, {type:'ab',value:[true,false,true]},"repr: array boolean",         'array [ boolean:true boolean:false boolean:true ]',
         echo, {type:'ab',value:[true,false,true]},"echo: array byte",            [true,false,true],
         repr, {type:'ay',value:[1,2,3]},          "repr: array byte",            'array [ byte:1 byte:2 byte:3 ]',
