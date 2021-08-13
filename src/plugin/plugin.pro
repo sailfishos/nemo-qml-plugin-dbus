@@ -1,8 +1,7 @@
 TARGET = nemodbus
 PLUGIN_IMPORT_PATH = Nemo/DBus
-QT += dbus qml
-
 QT -= gui
+QT += dbus qml
 
 TEMPLATE = lib
 CONFIG += qt plugin hide_symbols
@@ -25,10 +24,14 @@ QMAKE_EXTRA_TARGETS += qmltypes
 SOURCES += \
     plugin.cpp \
     declarativedbus.cpp \
+    declarativedbusabstractobject.cpp \
     declarativedbusadaptor.cpp \
     declarativedbusinterface.cpp \
+    declarativedbusobject.cpp
 
 HEADERS += \
     declarativedbus.h \
+    declarativedbusabstractobject.h \
     declarativedbusadaptor.h \
     declarativedbusinterface.h \
+    declarativedbusobject.h

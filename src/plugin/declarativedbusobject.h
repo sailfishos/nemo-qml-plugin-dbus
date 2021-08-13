@@ -1,6 +1,6 @@
 /****************************************************************************************
 **
-** Copyright (C) 2013 - 2021 Jolla Ltd.
+** Copyright (c) 2021 Jolla Ltd.
 ** All rights reserved.
 **
 ** You may use this file under the terms of the GNU Lesser General
@@ -21,27 +21,35 @@
 **
 ****************************************************************************************/
 
-#ifndef DECLARATIVEDBUSADAPTOR_H
-#define DECLARATIVEDBUSADAPTOR_H
+#ifndef DECLARATIVEDBUSOBJECT_H
+#define DECLARATIVEDBUSOBJECT_H
 
 #include "declarativedbusabstractobject.h"
 
-class DeclarativeDBusAdaptor : public DeclarativeDBusAbstractObject
+#include <QQmlListProperty>
+#include <QVector>
+
+class DeclarativeDBusAdaptor;
+
+class DeclarativeDBusObject : public DeclarativeDBusAbstractObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString iface READ interface WRITE setInterface NOTIFY interfaceChanged)
+    Q_PROPERTY(QQmlListProperty<QObject> adaptors READ adaptors NOTIFY adaptorsChanged)
     Q_INTERFACES(QQmlParserStatus)
+    Q_CLASSINFO("DefaultProperty", "adaptors")
 
 public:
-    explicit DeclarativeDBusAdaptor(QObject *parent = nullptr);
-    ~DeclarativeDBusAdaptor() override;
+    explicit DeclarativeDBusObject(QObject *parent = nullptr);
+    ~DeclarativeDBusObject() override;
 
-    QString interface() const;
-    void setInterface(const QString &interface);
+    QQmlListProperty<QObject> adaptors();
 
-    Q_INVOKABLE void emitSignal(const QString &name,
-                                const QJSValue &arguments = QJSValue::UndefinedValue);
+    void componentComplete() override;
 
+signals:
+    void adaptorsChanged();
+
+protected:
     bool getProperty(
             const QDBusMessage &message,
             const QDBusConnection &connection,
@@ -60,11 +68,14 @@ public:
             const QString &name,
             const QVariantList &dbusArguments) override;
 
-signals:
-    void interfaceChanged();
-
 private:
-    QString m_interface;
+    static void adaptor_append(QQmlListProperty<QObject> *property, QObject *value);
+    static QObject *adaptor_at(QQmlListProperty<QObject> *property, int index);
+    static int adaptor_count(QQmlListProperty<QObject> *property);
+    static void adaptor_clear(QQmlListProperty<QObject> *property);
+
+    QHash<QString, DeclarativeDBusAdaptor *> m_adaptors;
+    QVector<QObject *> m_objects;
 };
 
 #endif

@@ -38,6 +38,7 @@
 #include "declarativedbus.h"
 #include "declarativedbusadaptor.h"
 #include "declarativedbusinterface.h"
+#include "declarativedbusobject.h"
 
 #include "dbus.h"
 
@@ -55,6 +56,7 @@ public:
         qmlRegisterUncreatableType<DeclarativeDBus>(uri, 2, 0, "DBus", "Cannot create DBus objects");
         qmlRegisterType<DeclarativeDBusAdaptor>(uri, 2, 0, "DBusAdaptor");
         qmlRegisterType<DeclarativeDBusInterface>(uri, 2, 0, "DBusInterface");
+        qmlRegisterType<DeclarativeDBusObject>(uri, 2, 0, "DBusObject");
     }
 };
 
