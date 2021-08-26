@@ -68,6 +68,7 @@ sed 's/Nemo.DBus/org.nemomobile.dbus/' < src/plugin/qmldir > %{buildroot}%{_libd
 %{_libdir}/qt5/qml/Nemo/DBus/qmldir
 %{_libdir}/qt5/qml/Nemo/DBus/plugins.qmltypes
 %license license.lgpl
+%license license.bsd
 
 # org.nemomobile.dbus legacy import
 %dir %{_libdir}/qt5/qml/org/nemomobile/dbus
