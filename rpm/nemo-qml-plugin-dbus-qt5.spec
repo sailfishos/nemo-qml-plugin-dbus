@@ -45,12 +45,10 @@ Summary:    DBus plugin documentation
 %qmake5 "VERSION=%{version}"
 make  %{?_smp_mflags}
 make -C tests/dbustestd  %{?_smp_mflags}
-make  %{?_smp_mflags} docs
 
 %install
 %qmake5_install
 make -C tests/dbustestd install ROOT=%{buildroot} VERS=%{version}
-make install_docs INSTALL_ROOT=%{buildroot}
 
 # org.nemomobile.dbus legacy import
 mkdir -p %{buildroot}%{_libdir}/qt5/qml/org/nemomobile/dbus/
