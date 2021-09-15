@@ -2,7 +2,7 @@ project         = Nemo QML Plugin D-Bus
 description     = Nemo QML Plugin D-Bus Reference Documentation
 versionsym      =
 version         = 2.0
-url             = https://github.com/nemomobile/nemo-qml-plugin-dbus
+url             = https://github.com/sailfishos/nemo-qml-plugin-dbus/
 
 sourcedirs += src ../src
 
@@ -26,7 +26,7 @@ qhp.NemoQmlPluginDBus.subprojects.qmltypes.sortPages = true
 
 HTML.footer += \
     "<div class=\"footer\">\n" \
-    "  <p><acronym title=\"Copyright\">&copy;</acronym> 2015 Jolla OY</p>\n" \
+    "  <p><acronym title=\"Copyright\">&copy;</acronym> 2021 Jolla OY</p>\n" \
     "  <p>All other trademarks are property of their respective owners.</p>\n" \
     "  <p>\n" \
     "    This document may be used under the terms of the " \

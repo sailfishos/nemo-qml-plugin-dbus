@@ -3,12 +3,12 @@ Summary:    DBus plugin for Nemo Mobile
 Version:    2.1.24
 Release:    1
 License:    BSD and LGPLv2
-URL:        https://git.merproject.org/mer-core/nemo-qml-plugin-dbus
+URL:        https://github.com/sailfishos/nemo-qml-plugin-dbus/
 Source0:    %{name}-%{version}.tar.bz2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5DBus)
-BuildRequires:  mer-qdoc-template
+BuildRequires:  sailfish-qdoc-template
 
 %description
 %{summary}.
@@ -45,12 +45,10 @@ Summary:    DBus plugin documentation
 %qmake5 "VERSION=%{version}"
 make  %{?_smp_mflags}
 make -C tests/dbustestd  %{?_smp_mflags}
-make  %{?_smp_mflags} docs
 
 %install
 %qmake5_install
 make -C tests/dbustestd install ROOT=%{buildroot} VERS=%{version}
-make install_docs INSTALL_ROOT=%{buildroot}
 
 # org.nemomobile.dbus legacy import
 mkdir -p %{buildroot}%{_libdir}/qt5/qml/org/nemomobile/dbus/
