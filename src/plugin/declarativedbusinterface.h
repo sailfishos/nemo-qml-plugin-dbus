@@ -53,6 +53,7 @@ class DeclarativeDBusInterface : public QObject, public QQmlParserStatus
     Q_PROPERTY(DeclarativeDBus::BusType bus READ bus WRITE setBus NOTIFY busChanged)
     Q_PROPERTY(bool signalsEnabled READ signalsEnabled WRITE setSignalsEnabled NOTIFY signalsEnabledChanged)
     Q_PROPERTY(bool propertiesEnabled READ propertiesEnabled WRITE setPropertiesEnabled NOTIFY propertiesEnabledChanged)
+    Q_PROPERTY(int timeout READ timeout WRITE setTimeout NOTIFY timeoutChanged)
 
     Q_INTERFACES(QQmlParserStatus)
 
@@ -88,6 +89,9 @@ public:
     bool propertiesEnabled() const;
     void setPropertiesEnabled(bool enabled);
 
+    int timeout() const;
+    void setTimeout(int timeout);
+
     void propertiesConnected() const;
 
     Q_INVOKABLE void call(const QString &method,
@@ -116,6 +120,7 @@ signals:
     void signalsEnabledChanged();
     void propertiesEnabledChanged();
     void propertiesChanged();
+    void timeoutChanged();
 
 private slots:
     void pendingCallFinished(QDBusPendingCallWatcher *watcher);
@@ -166,6 +171,7 @@ private:
     bool m_propertiesConnected;
     bool m_introspected;
     bool m_providesPropertyInterface;
+    int m_timeout;
 
     QDBusServiceWatcher *m_serviceWatcher;
 };

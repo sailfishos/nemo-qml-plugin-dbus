@@ -151,6 +151,7 @@ DeclarativeDBusInterface::DeclarativeDBusInterface(QObject *parent)
     , m_propertiesConnected(false)
     , m_introspected(false)
     , m_providesPropertyInterface(false)
+    , m_timeout(-1)
     , m_serviceWatcher(nullptr)
 {
 }
@@ -325,6 +326,20 @@ void DeclarativeDBusInterface::setPropertiesEnabled(bool enabled)
         queryPropertyValues();  // connectPropertyHandler will call this as well.  This just cover the case where connectPropertyHandler was previously called and m_propertiesEnabled was false.
         connectPropertyHandler();
     }
+}
+
+int DeclarativeDBusInterface::timeout() const
+{
+    return m_timeout;
+}
+
+void DeclarativeDBusInterface::setTimeout(int timeout)
+{
+    if (m_timeout == timeout)
+        return;
+
+    m_timeout = timeout;
+    emit timeoutChanged();
 }
 
 QVariantList DeclarativeDBusInterface::argumentsFromScriptValue(const QJSValue &arguments)
@@ -713,7 +728,7 @@ bool DeclarativeDBusInterface::dispatch(
         return false;
     }
 
-    QDBusPendingCall pendingCall = conn.asyncCall(message);
+    QDBusPendingCall pendingCall = conn.asyncCall(message, m_timeout);
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(pendingCall);
     connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
             this, SLOT(pendingCallFinished(QDBusPendingCallWatcher*)));

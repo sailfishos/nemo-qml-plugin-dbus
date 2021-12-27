@@ -64,6 +64,7 @@ Module {
         Property { name: "bus"; type: "DeclarativeDBus::BusType" }
         Property { name: "signalsEnabled"; type: "bool" }
         Property { name: "propertiesEnabled"; type: "bool" }
+        Property { name: "timeout"; type: "int" }
         Signal { name: "interfaceChanged" }
         Signal { name: "propertiesChanged" }
         Method {
