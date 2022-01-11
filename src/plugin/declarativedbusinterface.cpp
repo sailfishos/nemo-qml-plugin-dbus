@@ -328,6 +328,11 @@ void DeclarativeDBusInterface::setPropertiesEnabled(bool enabled)
     }
 }
 
+/*!
+    \qmlproperty bool DBusInterface::timeout
+
+    This property sets the timeout in milliseconds for waiting a reply on dbus method calling. Default value -1 means QtDBus default timeout value.
+*/
 int DeclarativeDBusInterface::timeout() const
 {
     return m_timeout;
