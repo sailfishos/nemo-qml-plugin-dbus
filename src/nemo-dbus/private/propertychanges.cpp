@@ -97,14 +97,16 @@ void PropertyChanges::propertiesChanged(
         const QString &interface, const QVariantMap &changed, const QStringList &invalidated)
 {
     for (auto it = changed.begin(); it != changed.end(); ++it) {
-        qCDebug(m_cache->logs, "DBus property changed (%s %s %s.%s)",
+        QLoggingCategory logCat(m_cache->logs().categoryName());
+        qCDebug(logCat, "DBus property changed (%s %s %s.%s)",
                 qPrintable(m_service), qPrintable(m_path), qPrintable(interface), qPrintable(it.key()));
 
         emit propertyChanged(interface, it.key(), it.value());
     }
 
     for (auto property : invalidated) {
-        qCDebug(m_cache->logs, "DBus property changed (%s %s %s.%s)",
+        QLoggingCategory logCat(m_cache->logs().categoryName());
+        qCDebug(logCat, "DBus property changed (%s %s %s.%s)",
                 qPrintable(m_service), qPrintable(m_path), qPrintable(interface), qPrintable(property));
 
         getProperty(interface, property);

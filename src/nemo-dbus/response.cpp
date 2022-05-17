@@ -50,7 +50,8 @@ void Response::callReturn(const QDBusMessage &message)
 {
     deleteLater();
 
-    qCDebug(logs, "DBus reply (%s %s %s.%s)",
+    QLoggingCategory logCat(logs().categoryName());
+    qCDebug(logCat, "DBus reply (%s %s %s.%s)",
             qPrintable(message.service()),
             qPrintable(message.path()),
             qPrintable(message.interface()),
@@ -63,7 +64,8 @@ void Response::callError(const QDBusError &error, const QDBusMessage &message)
 {
     deleteLater();
 
-    qCWarning(logs, "DBus error (%s %s %s.%s): %s %s",
+    QLoggingCategory logCat(logs().categoryName());
+    qCWarning(logCat, "DBus error (%s %s %s.%s): %s %s",
               qPrintable(message.service()),
               qPrintable(message.path()),
               qPrintable(message.interface()),
