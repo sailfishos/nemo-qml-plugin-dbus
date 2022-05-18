@@ -824,7 +824,7 @@ void DeclarativeDBusInterface::pendingCallFinished(QDBusPendingCallWatcher *watc
 
     QVariantList arguments = message.arguments();
     foreach (QVariant argument, arguments) {
-        callbackArguments << callback.engine()->toScriptValue<QVariant>(NemoDBus::demarshallDBusArgument(argument));
+        callbackArguments << QJSEngine(this).toScriptValue<QVariant>(NemoDBus::demarshallDBusArgument(argument));
     }
 
     QJSValue result = callback.call(callbackArguments);
