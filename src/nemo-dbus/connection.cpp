@@ -44,13 +44,12 @@ ConnectionData::ConnectionData(const QDBusConnection &connection, const QLogging
     : connection(connection)
     , m_logs(logs)
 {
+    QLoggingCategory logCat(logs().categoryName());
     if (connection.isConnected()) {
-        QLoggingCategory logCat(logs().categoryName());
         qCDebug(logCat, "Connected to %s", qPrintable(connection.name()));
 
         connectToDisconnected();
     } else {
-        QLoggingCategory logCat(logs().categoryName());
         qCWarning(logCat, "Connection to %s failed.  %s",
                   qPrintable(connection.name()), qPrintable(connection.lastError().message()));
     }
@@ -223,9 +222,9 @@ bool Connection::isConnected() const
 bool Connection::reconnect(const QDBusConnection &connection)
 {
     d->connection = connection;
+    QLoggingCategory logCat(d->logs().categoryName());
 
     if (d->connection.isConnected()) {
-        QLoggingCategory logCat(d->logs().categoryName());
         qCDebug(logCat, "Connected to %s", qPrintable(d->connection.name()));
 
         d->connectToDisconnected();
@@ -233,7 +232,6 @@ bool Connection::reconnect(const QDBusConnection &connection)
 
         return true;
     } else {
-        QLoggingCategory logCat(d->logs().categoryName());
         qCWarning(logCat, "Connection to %s failed.  %s",
                   qPrintable(d->connection.name()), qPrintable(d->connection.lastError().message()));
         return false;
