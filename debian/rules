@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+# output every command that modifies files on the build system.
+DH_VERBOSE = 1
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@
+
+# Do not install a copyright file
+# no /usr/share/docs/* needed!
+#dh_installdocs --exclude=debian/copyright
+# Do not install changelogs for space conservation
+#override_dh_installchangelogs:

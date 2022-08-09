@@ -1,0 +1,2 @@
+usr/lib/*/libnemodbus.so.*
+usr/lib/*/qt5/qml/Nemo/DBus
