@@ -1,0 +1,27 @@
+Source: nemo-qml-plugin-dbus
+Section: libs
+Priority: optional
+Maintainer: lichenggang <lichenggang@deepin.org>
+Build-Depends: debhelper-compat (= 13), qt5-qmake, qtbase5-dev,
+               qtdeclarative5-dev, qt5-default, libglib2.0-dev, libdbus-1-dev
+Standards-Version: 4.5.1
+Rules-Requires-Root: no
+Homepage: https://github.com/sailfishos/nemo-qml-plugin-dbus
+
+Package: libnemodbus
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Nemo QML Plugin D-Bus
+ The nemo-dbus library provides C++11 extensions to QtDBus to make it easier
+ to call and handle the replies from asynchronous DBus methods.
+ .
+ This package contains the shared library
+
+Package: libnemodbus-dev
+Architecture: any
+Depends: ${misc:Depends}, libnemodbus1 (= ${binary:Version})
+Description: Nemo QML Plugin D-Bus
+ The nemo-dbus library provides C++11 extensions to QtDBus to make it easier
+ to call and handle the replies from asynchronous DBus methods.
+ .
+ This package contains the developent files

@@ -1,0 +1,11 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: nemo-qml-plugin-dbus
+Source: https://git.sailfishos.org/mer-core/nemo-qml-plugin-dbus
+
+Files: *
+Copyright: Copyright: 2013 - 2021 Jolla Ltd & many contributors (see git log) 
+License: BSD and LGPLv2
+
+License: LGPL-2.1
+  On Debian systems, the full text of the GNU Library Public License 2.1
+  can be found in the file '/usr/share/common-licenses/LGPL-2.1'.

@@ -1,0 +1,6 @@
+nemo-qml-plugin-dbus (2.1.24-1) unstable; urgency=medium
+
+  [ Sebastian Spaeth ]
+  * initial release
+
+ -- LiChengGang <lichenggang@uniontech.com>  Tue, 09 Aug 2022 14:11:37 +0800
