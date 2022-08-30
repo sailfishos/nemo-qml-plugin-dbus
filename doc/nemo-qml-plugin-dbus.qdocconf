@@ -1,8 +1,8 @@
-project         = Nemo QML Plugin D-Bus
+project         = nemo-qml-plugin-dbus
 description     = Nemo QML Plugin D-Bus Reference Documentation
 versionsym      =
 version         = 2.0
-url             = https://github.com/sailfishos/nemo-qml-plugin-dbus/
+url             = $BASE_URL/nemo-qml-plugin-dbus
 
 sourcedirs += src ../src
 

@@ -55,6 +55,8 @@ mkdir -p %{buildroot}%{_libdir}/qt5/qml/org/nemomobile/dbus/
 ln -sf %{_libdir}/qt5/qml/Nemo/DBus/libnemodbus.so %{buildroot}%{_libdir}/qt5/qml/org/nemomobile/dbus/
 sed 's/Nemo.DBus/org.nemomobile.dbus/' < src/plugin/qmldir > %{buildroot}%{_libdir}/qt5/qml/org/nemomobile/dbus/qmldir
 
+install -m 644 doc/html/nemo-qml-plugin-dbus.index %{buildroot}/%{_docdir}/nemo-qml-plugin-dbus/
+
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
@@ -96,3 +98,4 @@ sed 's/Nemo.DBus/org.nemomobile.dbus/' < src/plugin/qmldir > %{buildroot}%{_libd
 %defattr(-,root,root,-)
 %dir %{_datadir}/doc/nemo-qml-plugin-dbus
 %{_datadir}/doc/nemo-qml-plugin-dbus/nemo-qml-plugin-dbus.qch
+%{_datadir}/doc/nemo-qml-plugin-dbus/nemo-qml-plugin-dbus.index
