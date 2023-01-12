@@ -25,6 +25,7 @@
 
 #include <QtQml>
 #include <QQmlExtensionPlugin>
+#include <QDebug>
 
 #include "declarativedbus.h"
 #include "declarativedbusadaptor.h"
@@ -40,6 +41,10 @@ public:
     void registerTypes(const char *uri)
     {
         Q_ASSERT(uri == QLatin1String("Nemo.DBus") || uri == QLatin1String("org.nemomobile.dbus"));
+
+        if (uri == QLatin1String("org.nemomobile.dbus")) {
+            qWarning() << "org.nemomobile.dbus import is deprecated. Suggest migrating to Nemo.DBus";
+        }
 
         NemoDBus::registerDBusTypes();
 
