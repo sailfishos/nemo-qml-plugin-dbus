@@ -598,6 +598,23 @@ DeclarativeDBusInterface::marshallDBusArgument(QDBusMessage &msg, const QJSValue
             msg << vec;
             return true;
         }
+    } else if (t == "a{sv}") {
+        if (!value.isObject()) {
+            qWarning() << "Invalid value for type specifier:" << t << "v:" << value.toVariant();
+            qmlInfo(this) << "Invalid value for type specifier: " << t << " v: " << value.toVariant();
+            return false;
+        }
+        QVariantMap variantMap;
+        QJSValueIterator it(value);
+        while (it.hasNext()) {
+            it.next();
+            QVariant var = it.value().toVariant();
+            flattenVariantArrayGuessType(var);
+            variantMap.insert(it.name(), var);
+        }
+
+        msg << variantMap;
+        return true;
     }
 
     qWarning() << "DeclarativeDBusInterface::typedCall - Invalid type specifier:" << t;
