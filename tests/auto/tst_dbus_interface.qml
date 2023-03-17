@@ -233,6 +233,8 @@ TestCase {
         echo, {type:'s',value:'COMPLEX3'},        "echo: complex3",              [4,5,6],
         repr, {type:'s',value:'COMPLEX4'},        "repr: complex4",              'struct { byte:255 boolean:true int16:32767 int32:2147483647 int64:9223372036854775807 uint16:65535 uint32:4294967295 uint64:18446744073709551615 double:3.75 string:"string" objpath:"/obj/path" signature:"sointu" }',
         echo, {type:'s',value:'COMPLEX4'},        "echo: complex4",              [255,true,32767,2147483647,9223372036854775807,65535,4294967295,18446744073709551615,3.75,"string","/obj/path","sointu"],
+        repr, {type:'a{sv}',value:{a:1, b:"two"}},"repr: array string-variant",  'array [ key string:"a" val variant int32:1 key string:"b" val variant string:"two" ]',
+        echo, {type:'a{sv}',value:{a:1, b:"two"}},"echo: array string-variant",  {a:1, b:"two"},
     ]
 
     function methodEnd(res) {
