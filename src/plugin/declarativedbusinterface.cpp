@@ -470,10 +470,18 @@ static void flattenVariantArrayGuessType(QVariant &var)
     /* If all items in the list do not share the same type:
      * use as is -> each value will be wrapped in variant
      * container */
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    int t = arr[0].typeId();
+#else
     int t = arr[0].type();
+#endif
     int n = arr.size();
     for (int i = 1; i < n; ++i) {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+        if (arr[i].typeId() != t)
+#else
         if (arr[i].type() != t)
+#endif
             return;
     }
 
@@ -494,7 +502,11 @@ static void flattenVariantArrayGuessType(QVariant &var)
         /* Unhandled types are encoded as variant:array:variant:val
          * instead of variant:array:val what we actually want.
          */
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+        qWarning("unhandled array type: %d (%s)", t, QMetaType(t).name());
+#else
         qWarning("unhandled array type: %d (%s)", t, QVariant::typeToName(t));
+#endif
         break;
     }
 }
@@ -870,7 +882,11 @@ void DeclarativeDBusInterface::signalHandler(const QDBusMessage &message)
 
     for (int i = 0; i < normalized.count(); ++i) {
         const QVariant &arg = normalized.at(i);
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+        args[i] = QGenericArgument(QMetaType(arg.metaType()).name(), arg.data());
+#else
         args[i] = Q_ARG(QVariant, arg);
+#endif
     }
 
     QMetaMethod method = m_signals.value(message.member());

@@ -242,7 +242,11 @@ QString DeclarativeDBusAdaptor::introspect(const QString &) const
 
 QDBusArgument &operator << (QDBusArgument &argument, const QVariant &value)
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    switch (value.typeId()) {
+#else
     switch (value.type()) {
+#endif
     case QVariant::String:
         return argument << value.toString();
     case QVariant::StringList:
