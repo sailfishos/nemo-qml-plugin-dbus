@@ -20,7 +20,7 @@ This documentation assumes that you have at least a basic understanding of D-Bus
 These are covered in the D-Bus documentation at \l {http://www.freedesktop.org/wiki/Software/dbus/}.
 
 Source code for this plugin is available on GitHub at
-\l {https://github.com/nemomobile/nemo-qml-plugin-dbus}.
+\l {https://github.com/sailfishos/nemo-qml-plugin-dbus}.
 
 \section2 What is D-Bus?
 
