@@ -56,15 +56,15 @@ public:
     QString interface() const;
 
     template <typename... Arguments>
-    Response *call(const QString &method, Arguments... arguments)
+    Response *call(const QString &method, Arguments &&...arguments)
     {
-        return Object::call(m_interface, method, arguments...);
+        return Object::call(m_interface, method, std::forward<Arguments>(arguments)...);
     }
 
     template <typename... Arguments>
-    QDBusMessage blockingCall(const QString &method, Arguments... arguments)
+    QDBusMessage blockingCall(const QString &method, Arguments &&...arguments)
     {
-        return Object::blockingCall(m_interface, method, arguments...);
+        return Object::blockingCall(m_interface, method, std::forward<Arguments>(arguments)...);
     }
 
     template <typename T, typename Handler>

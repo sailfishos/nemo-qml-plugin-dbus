@@ -78,9 +78,10 @@ public:
             const QString &path,
             const QString &interface,
             const QString &method,
-            Arguments... arguments)
+            Arguments &&...arguments)
     {
-        return d->call(context, service, path, interface, method, arguments...);
+        return d->call(context, service, path, interface, method,
+                std::forward<Arguments>(arguments)...);
     }
 
     template <typename... Arguments>
@@ -89,9 +90,10 @@ public:
             const QString &path,
             const QString &interface,
             const QString &method,
-            Arguments... arguments)
+            Arguments &&...arguments)
     {
-        return d->blockingCall(service, path, interface, method, arguments...);
+        return d->blockingCall(service, path, interface, method,
+                std::forward<Arguments>(arguments)...);
     }
 
     template <typename T, typename Handler>

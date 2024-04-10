@@ -79,16 +79,16 @@ template <> inline QVariant demarshallArgument<QVariant>(const QVariant &argumen
 inline void appendArguments(QVariantList &) {}
 
 template<typename Argument, typename... Arguments>
-inline void appendArguments(QVariantList &list, Argument value, Arguments... arguments)
+inline void appendArguments(QVariantList &list, Argument &&value, Arguments &&...arguments)
 {
-    list.append(marshallArgument(value));
-    appendArguments(list, arguments...);
+    list.append(marshallArgument(std::forward<Argument>(value)));
+    appendArguments(list, std::forward<Arguments>(arguments)...);
 }
 
-template <typename... Arguments> inline QVariantList marshallArguments(Arguments... arguments)
+template <typename... Arguments> inline QVariantList marshallArguments(Arguments &&...arguments)
 {
     QVariantList list;
-    appendArguments(list, arguments...);
+    appendArguments(list, std::forward<Arguments>(arguments)...);
     return list;
 }
 
@@ -97,10 +97,10 @@ template <typename... Arguments> inline bool send(
         const QString &path,
         const QString &interface,
         const QString &method,
-        Arguments... arguments)
+        Arguments &&...arguments)
 {
     QDBusMessage message = QDBusMessage::createMethodCall(QString(), path, interface, method);
-    message.setArguments(marshallArguments(arguments...));
+    message.setArguments(marshallArguments(std::forward<Arguments>(arguments)...));
     return connection.send(message);
 }
 
@@ -109,9 +109,10 @@ template <typename... Arguments> inline bool send(
         const QString &path,
         const QString &interface,
         const QString &method,
-        Arguments... arguments)
+        Arguments &&...arguments)
 {
-    return send(QDBusConnection(connectionName), path, interface, method, arguments...);
+    return send(QDBusConnection(connectionName), path, interface, method,
+            std::forward<Arguments>(arguments)...);
 }
 
 NEMODBUS_EXPORT QVariant demarshallDBusArgument(const QVariant &val, int depth = 0);

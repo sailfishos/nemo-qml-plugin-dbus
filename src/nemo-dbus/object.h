@@ -49,15 +49,17 @@ public:
     QString path() const;
 
     template <typename... Arguments>
-    Response *call(const QString &interface, const QString &method, Arguments... arguments)
+    Response *call(const QString &interface, const QString &method, Arguments &&...arguments)
     {
-        return m_connection.call(m_context, m_service, m_path, interface, method, arguments...);
+        return m_connection.call(m_context, m_service, m_path, interface, method,
+                std::forward<Arguments>(arguments)...);
     }
 
     template <typename... Arguments>
-    QDBusMessage blockingCall(const QString &interface, const QString &method, Arguments... arguments)
+    QDBusMessage blockingCall(const QString &interface, const QString &method, Arguments &&...arguments)
     {
-        return m_connection.blockingCall(m_service, m_path, interface, method, arguments...);
+        return m_connection.blockingCall(m_service, m_path, interface, method,
+                std::forward<Arguments>(arguments)...);
     }
 
     template <typename T, typename Handler>
