@@ -59,9 +59,10 @@ public:
             const QString &path,
             const QString &interface,
             const QString &method,
-            Arguments... arguments)
+            Arguments &&...arguments)
     {
-        return callMethod(context, service, path, interface, method, marshallArguments(arguments...));
+        return callMethod(context, service, path, interface, method,
+                marshallArguments(std::forward<Arguments>(arguments)...));
     }
 
     template <typename... Arguments>
@@ -70,9 +71,10 @@ public:
             const QString &path,
             const QString &interface,
             const QString &method,
-            Arguments... arguments)
+            Arguments &&...arguments)
     {
-        return blockingCallMethod(service, path, interface, method, marshallArguments(arguments...));
+        return blockingCallMethod(service, path, interface, method,
+                marshallArguments(std::forward<Arguments>(arguments)...));
     }
 
     template <typename T, typename Handler>
