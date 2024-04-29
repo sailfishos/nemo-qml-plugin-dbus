@@ -43,8 +43,8 @@ Summary:    DBus plugin documentation
 
 %build
 %qmake5 "VERSION=%{version}"
-make  %{?_smp_mflags}
-make -C tests/dbustestd  %{?_smp_mflags}
+%make_build
+%make_build -C tests/dbustestd
 
 %install
 %qmake5_install
