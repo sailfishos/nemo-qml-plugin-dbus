@@ -62,7 +62,6 @@ install -m 644 doc/html/nemo-qml-plugin-dbus.index %{buildroot}/%{_docdir}/nemo-
 %postun -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root,-)
 %dir %{_libdir}/qt5/qml/Nemo/DBus
 %{_libdir}/qt5/qml/Nemo/DBus/libnemodbus.so
 %{_libdir}/qt5/qml/Nemo/DBus/qmldir
@@ -79,7 +78,6 @@ install -m 644 doc/html/nemo-qml-plugin-dbus.index %{buildroot}/%{_docdir}/nemo-
 %{_libdir}/libnemodbus.so.*
 
 %files devel
-%defattr(-,root,root,-)
 %dir %{_includedir}/nemo-dbus
 %dir %{_includedir}/nemo-dbus/private
 %{_includedir}/nemo-dbus/*.h
@@ -88,14 +86,11 @@ install -m 644 doc/html/nemo-qml-plugin-dbus.index %{buildroot}/%{_docdir}/nemo-
 %{_libdir}/pkgconfig/nemodbus.pc
 
 %files tests
-%defattr(-,root,root,-)
-%dir /opt/tests/nemo-qml-plugins-qt5/dbus
 %dir /usr/share/dbus-1/services
-/opt/tests/nemo-qml-plugins-qt5/dbus/*
+/opt/tests/nemo-qml-plugin-dbus-qt5
 %{_datadir}/dbus-1/services/org.nemomobile.dbustestd.service
 
 %files doc
-%defattr(-,root,root,-)
 %dir %{_datadir}/doc/nemo-qml-plugin-dbus
 %{_datadir}/doc/nemo-qml-plugin-dbus/nemo-qml-plugin-dbus.qch
 %{_datadir}/doc/nemo-qml-plugin-dbus/nemo-qml-plugin-dbus.index

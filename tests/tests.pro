@@ -1,10 +1,10 @@
 TEMPLATE = aux
 
 autotest.files = auto/*.qml
-autotest.path = /opt/tests/nemo-qml-plugins-qt5/dbus/auto
+autotest.path = /opt/tests/nemo-qml-plugin-dbus-qt5/auto
 
 testdefinition.files = test-definition/tests.xml
-testdefinition.path = /opt/tests/nemo-qml-plugins-qt5/dbus/test-definition
+testdefinition.path = /opt/tests/nemo-qml-plugin-dbus-qt5/test-definition
 
 OTHER_FILES += \
     auto/*.qml \

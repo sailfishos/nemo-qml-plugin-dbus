@@ -3,10 +3,10 @@
    <suite name="nemo-qml-plugin-dbus-qt5-tests" domain="mw">
        <set name="unit-tests" feature="nemo-qml-plugin-dbus-qt5">
            <case manual="false" name="typedCall">
-               <step>qmltestrunner -input /opt/tests/nemo-qml-plugins-qt5/dbus/auto/tst_dbus_interface.qml</step>
+               <step>qmltestrunner -input /opt/tests/nemo-qml-plugin-dbus-qt5/auto/tst_dbus_interface.qml</step>
            </case>
            <case manual="false" name="DBus Interface">
-               <step>qmltestrunner -input /opt/tests/nemo-qml-plugins-qt5/dbus/auto/tst_dbus.qml</step>
+               <step>qmltestrunner -input /opt/tests/nemo-qml-plugin-dbus-qt5/auto/tst_dbus.qml</step>
            </case>
        </set>
    </suite>

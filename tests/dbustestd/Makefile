@@ -4,7 +4,7 @@
 
 VERS       ?= 0.0.0
 ROOT       ?= /tmp/nemo-qml-plugin-dbus
-PLUGIN_DIR ?= /opt/tests/nemo-qml-plugins-qt5/dbus/
+PLUGIN_DIR ?= /opt/tests/nemo-qml-plugin-dbus-qt5/
 DBUS_DIR   ?= /usr/share/dbus-1
 
 DBUS_GMAIN_DIR := dbus-gmain
