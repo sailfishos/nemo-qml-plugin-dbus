@@ -395,7 +395,7 @@ QVariantList DeclarativeDBusInterface::argumentsFromScriptValue(const QJSValue &
 }
 
 /*!
-    \qmlmethod void DBusInterface::call(string method, variant arguments, variant callback, variant errorCallback)
+    \qmlmethod void DBusInterface::call(string method, var arguments, var callback, var errorCallback)
 
     Call a D-Bus method with the name \a method on the object with \a arguments as either a single
     value or an array. For a function with no arguments, pass in \c undefined.
@@ -732,7 +732,7 @@ bool DeclarativeDBusInterface::serviceAvailable() const
 }
 
 /*!
-    \qmlmethod bool DBusInterface::typedCall(string method, variant arguments, variant callback, variant errorCallback)
+    \qmlmethod bool DBusInterface::typedCall(string method, var arguments, var callback, var errorCallback)
 
     Call a D-Bus method with the name \a method on the object with \a arguments. Each parameter is
     described by an object:
@@ -827,7 +827,7 @@ QVariant DeclarativeDBusInterface::getProperty(const QString &name)
 }
 
 /*!
-    \qmlmethod void DBusInterface::setProperty(string name, variant value)
+    \qmlmethod void DBusInterface::setProperty(string name, var value)
 
     Sets the D-Bus property named \a name on the object to \a value.
 
