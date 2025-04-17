@@ -181,6 +181,12 @@ DeclarativeDBusInterface::~DeclarativeDBusInterface()
         delete watcher;
 }
 
+/*!
+    \qmlproperty bool DBusInterface::watchServiceStatus
+
+    When enabled, the \l status property will match the current availability of the
+    D-Bus service.
+*/
 bool DeclarativeDBusInterface::watchServiceStatus() const
 {
     return m_watchServiceStatus;
@@ -198,6 +204,18 @@ void DeclarativeDBusInterface::setWatchServiceStatus(bool watchServiceStatus)
         connectPropertyHandler();
     }
 }
+
+/*!
+    \qmlproperty enumeration DBusInterface::status
+
+    Returns the availability of the service if tracking is enabled via \l watchServiceStatus.
+    Value can be:
+    \list
+    \li DeclarativeDBusInterface.Unknown
+    \li DeclarativeDBusInterface.Unavailable
+    \li DeclarativeDBusInterface.Available
+    \endlist
+*/
 
 DeclarativeDBusInterface::Status DeclarativeDBusInterface::status() const
 {
@@ -780,7 +798,7 @@ bool DeclarativeDBusInterface::dispatch(
 }
 
 /*!
-    \qmlproperty variant DBusInteface::getProperty(string name)
+    \qmlmethod var DBusInterface::getProperty(string name)
 
     Returns the the D-Bus property named \a name from the object.
 */
