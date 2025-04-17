@@ -116,7 +116,7 @@ QVariant demarshallDBusArgument(const QVariant &val, int depth)
         res = val.value<QDBusObjectPath>().path();
     } else if (type == qMetaTypeId<QDBusSignature>()) {
         /* Convert QDBusSignature to QString */
-        res =  val.value<QDBusSignature>().signature();
+        res = val.value<QDBusSignature>().signature();
     } else if (type == qMetaTypeId<QDBusUnixFileDescriptor>()) {
         /* Ignore, leave it to the receiver to extract the file descriptor */
         res = val;

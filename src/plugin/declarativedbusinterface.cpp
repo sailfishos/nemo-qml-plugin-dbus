@@ -322,7 +322,9 @@ void DeclarativeDBusInterface::setPropertiesEnabled(bool enabled)
         m_propertiesEnabled = enabled;
         emit propertiesEnabledChanged();
 
-        queryPropertyValues();  // connectPropertyHandler will call this as well.  This just cover the case where connectPropertyHandler was previously called and m_propertiesEnabled was false.
+        // connectPropertyHandler will call this as well.  This just cover the case where
+        // connectPropertyHandler was previously called and m_propertiesEnabled was false.
+        queryPropertyValues();
         connectPropertyHandler();
     }
 }
@@ -1178,10 +1180,10 @@ void DeclarativeDBusInterface::introspect()
 {
     m_introspected = true;
 
-    QDBusMessage message =
-            QDBusMessage::createMethodCall(m_service, m_path,
-                                           QLatin1String("org.freedesktop.DBus.Introspectable"),
-                                           QLatin1String("Introspect"));
+    QDBusMessage message
+            = QDBusMessage::createMethodCall(m_service, m_path,
+                                             QLatin1String("org.freedesktop.DBus.Introspectable"),
+                                             QLatin1String("Introspect"));
 
     if (message.type() == QDBusMessage::InvalidMessage)
         return;
