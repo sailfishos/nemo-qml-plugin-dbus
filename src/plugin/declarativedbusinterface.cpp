@@ -87,6 +87,26 @@
           to functions where the first letter is lowercase (the D-Bus signal \c {UpdateOne} is
           handled by the QML/JavaScript function \c {updateOne}).
 
+    \section2 Handling D-Bus Properties
+
+    If \l propertiesEnabled is set to \c true, properties of the destination object will
+    be available on the local object with matching names.
+
+    \code
+    DBusInterface {
+        service: 'org.example.service'
+        path: '/org/example/service'
+        iface: 'org.example.intf'
+
+        propertiesEnabled: true
+
+        property string activeState
+        onActiveStateChanged: {
+            // handle state change
+        }
+    }
+    \endcode
+
     \section2 Calling D-Bus Methods
 
     Remote D-Bus methods can be called using either \l call() or \l typedCall(). \l call() provides
@@ -307,6 +327,13 @@ void DeclarativeDBusInterface::setSignalsEnabled(bool enabled)
         connectSignalHandler();
     }
 }
+
+/*!
+    \qmlproperty bool DBusInterface::propertiesEnabled
+
+    This property holds whether this object tracks properties on the remote D-Bus object.
+    See \l {Handling D-Bus Properties}.
+*/
 
 bool DeclarativeDBusInterface::propertiesEnabled() const
 {
