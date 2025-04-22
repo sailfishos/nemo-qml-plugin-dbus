@@ -87,6 +87,26 @@
           to functions where the first letter is lowercase (the D-Bus signal \c {UpdateOne} is
           handled by the QML/JavaScript function \c {updateOne}).
 
+    \section2 Handling D-Bus Properties
+
+    If \l propertiesEnabled is set to \c true, properties of the destination object will
+    be available on the local object with matching names.
+
+    \code
+    DBusInterface {
+        service: 'org.example.service'
+        path: '/org/example/service'
+        iface: 'org.example.intf'
+
+        propertiesEnabled: true
+
+        property string activeState
+        onActiveStateChanged: {
+            // handle state change
+        }
+    }
+    \endcode
+
     \section2 Calling D-Bus Methods
 
     Remote D-Bus methods can be called using either \l call() or \l typedCall(). \l call() provides
@@ -161,6 +181,12 @@ DeclarativeDBusInterface::~DeclarativeDBusInterface()
         delete watcher;
 }
 
+/*!
+    \qmlproperty bool DBusInterface::watchServiceStatus
+
+    When enabled, the \l status property will match the current availability of the
+    D-Bus service.
+*/
 bool DeclarativeDBusInterface::watchServiceStatus() const
 {
     return m_watchServiceStatus;
@@ -178,6 +204,18 @@ void DeclarativeDBusInterface::setWatchServiceStatus(bool watchServiceStatus)
         connectPropertyHandler();
     }
 }
+
+/*!
+    \qmlproperty enumeration DBusInterface::status
+
+    Returns the availability of the service if tracking is enabled via \l watchServiceStatus.
+    Value can be:
+    \list
+    \li DeclarativeDBusInterface.Unknown
+    \li DeclarativeDBusInterface.Unavailable
+    \li DeclarativeDBusInterface.Available
+    \endlist
+*/
 
 DeclarativeDBusInterface::Status DeclarativeDBusInterface::status() const
 {
@@ -308,6 +346,13 @@ void DeclarativeDBusInterface::setSignalsEnabled(bool enabled)
     }
 }
 
+/*!
+    \qmlproperty bool DBusInterface::propertiesEnabled
+
+    This property holds whether this object tracks properties on the remote D-Bus object.
+    See \l {Handling D-Bus Properties}.
+*/
+
 bool DeclarativeDBusInterface::propertiesEnabled() const
 {
     return m_propertiesEnabled;
@@ -322,7 +367,9 @@ void DeclarativeDBusInterface::setPropertiesEnabled(bool enabled)
         m_propertiesEnabled = enabled;
         emit propertiesEnabledChanged();
 
-        queryPropertyValues();  // connectPropertyHandler will call this as well.  This just cover the case where connectPropertyHandler was previously called and m_propertiesEnabled was false.
+        // connectPropertyHandler will call this as well.  This just cover the case where
+        // connectPropertyHandler was previously called and m_propertiesEnabled was false.
+        queryPropertyValues();
         connectPropertyHandler();
     }
 }
@@ -348,7 +395,7 @@ QVariantList DeclarativeDBusInterface::argumentsFromScriptValue(const QJSValue &
 }
 
 /*!
-    \qmlmethod void DBusInterface::call(string method, variant arguments, variant callback, variant errorCallback)
+    \qmlmethod void DBusInterface::call(string method, var arguments, var callback, var errorCallback)
 
     Call a D-Bus method with the name \a method on the object with \a arguments as either a single
     value or an array. For a function with no arguments, pass in \c undefined.
@@ -685,7 +732,7 @@ bool DeclarativeDBusInterface::serviceAvailable() const
 }
 
 /*!
-    \qmlmethod bool DBusInterface::typedCall(string method, variant arguments, variant callback, variant errorCallback)
+    \qmlmethod bool DBusInterface::typedCall(string method, var arguments, var callback, var errorCallback)
 
     Call a D-Bus method with the name \a method on the object with \a arguments. Each parameter is
     described by an object:
@@ -751,7 +798,7 @@ bool DeclarativeDBusInterface::dispatch(
 }
 
 /*!
-    \qmlproperty variant DBusInteface::getProperty(string name)
+    \qmlmethod var DBusInterface::getProperty(string name)
 
     Returns the the D-Bus property named \a name from the object.
 */
@@ -780,7 +827,7 @@ QVariant DeclarativeDBusInterface::getProperty(const QString &name)
 }
 
 /*!
-    \qmlmethod void DBusInterface::setProperty(string name, variant value)
+    \qmlmethod void DBusInterface::setProperty(string name, var value)
 
     Sets the D-Bus property named \a name on the object to \a value.
 
@@ -1178,10 +1225,10 @@ void DeclarativeDBusInterface::introspect()
 {
     m_introspected = true;
 
-    QDBusMessage message =
-            QDBusMessage::createMethodCall(m_service, m_path,
-                                           QLatin1String("org.freedesktop.DBus.Introspectable"),
-                                           QLatin1String("Introspect"));
+    QDBusMessage message
+            = QDBusMessage::createMethodCall(m_service, m_path,
+                                             QLatin1String("org.freedesktop.DBus.Introspectable"),
+                                             QLatin1String("Introspect"));
 
     if (message.type() == QDBusMessage::InvalidMessage)
         return;

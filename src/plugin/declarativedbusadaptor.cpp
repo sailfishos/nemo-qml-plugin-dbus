@@ -475,7 +475,7 @@ bool DeclarativeDBusAdaptor::handleMessage(const QDBusMessage &message,
 }
 
 /*!
-    \qmlmethod void DBusAdaptor::emitSignal(string name, variant arguments)
+    \qmlmethod void DBusAdaptor::emitSignal(string name, var arguments)
 
     Emit a signal with the given \a name and \a arguments. If \a arguments is undefined (the
     default if not specified), then the signal will be emitted without arguments.
