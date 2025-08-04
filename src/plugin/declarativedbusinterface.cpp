@@ -177,8 +177,7 @@ DeclarativeDBusInterface::DeclarativeDBusInterface(QObject *parent)
 
 DeclarativeDBusInterface::~DeclarativeDBusInterface()
 {
-    foreach (QDBusPendingCallWatcher *watcher, m_pendingCalls.keys())
-        delete watcher;
+    qDeleteAll(m_pendingCalls.keys());
 }
 
 /*!

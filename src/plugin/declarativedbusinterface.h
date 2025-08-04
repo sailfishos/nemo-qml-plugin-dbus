@@ -44,7 +44,6 @@
 class DeclarativeDBusInterface : public QObject, public QQmlParserStatus
 {
     Q_OBJECT
-
     Q_PROPERTY(bool watchServiceStatus READ watchServiceStatus WRITE setWatchServiceStatus NOTIFY watchServiceStatusChanged)
     Q_PROPERTY(Status status READ status NOTIFY statusChanged)
     Q_PROPERTY(QString service READ service WRITE setService NOTIFY serviceChanged)
@@ -57,11 +56,11 @@ class DeclarativeDBusInterface : public QObject, public QQmlParserStatus
     Q_INTERFACES(QQmlParserStatus)
 
 public:
-    DeclarativeDBusInterface(QObject *parent = 0);
-    ~DeclarativeDBusInterface();
-
     enum Status { Unknown, Unavailable, Available };
     Q_ENUM(Status)
+
+    DeclarativeDBusInterface(QObject *parent = 0);
+    ~DeclarativeDBusInterface();
 
     bool watchServiceStatus() const;
     void setWatchServiceStatus(bool watchServiceStatus);
