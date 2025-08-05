@@ -110,7 +110,7 @@
     \section2 Calling D-Bus Methods
 
     Remote D-Bus methods can be called using either \l call() or \l typedCall(). \l call() provides
-    a simplier calling API, only supporting basic data types, \l typedCall()
+    a simpler calling API, only supporting basic data types, \l typedCall()
     supports more data types. Both methods provide callbacks for response and error handling.
 
     Imagine a D-Bus object in service \c {org.example.service} at path \c {/org/example/service} and
