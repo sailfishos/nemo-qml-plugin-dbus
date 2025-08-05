@@ -110,8 +110,8 @@
     \section2 Calling D-Bus Methods
 
     Remote D-Bus methods can be called using either \l call() or \l typedCall(). \l call() provides
-    a simplier calling API, only supporting basic data types and discards any value return by the
-    method. \l typedCall() supports more data types and has callbacks for call completion and error.
+    a simplier calling API, only supporting basic data types, \l typedCall()
+    supports more data types. Both methods provide callbacks for response and error handling.
 
     Imagine a D-Bus object in service \c {org.example.service} at path \c {/org/example/service} and
     interface \c {org.example.intf} with two methods:
@@ -400,10 +400,7 @@ QVariantList DeclarativeDBusInterface::argumentsFromScriptValue(const QJSValue &
     Call a D-Bus method with the name \a method on the object with \a arguments as either a single
     value or an array. For a function with no arguments, pass in \c undefined.
 
-    When the function returns, call \a callback with a single argument that is the return value. The
-    \a callback argument is optional, if set to \c undefined (the default), the return value will be
-    discarded. If the function fails \a errorCallback is called if it is not set to \c undefined
-    (the default).
+    The callback arguments are handled as described under \l typedCall().
 
     \note This function supports passing basic data types and will fail if the signature of the
           remote method does not match the signature determined from the type of \a arguments. The
@@ -747,10 +744,27 @@ bool DeclarativeDBusInterface::serviceAvailable() const
     Where \c type is the D-Bus type that \c value should be marshalled as. \a arguments can be
     either a single object describing the parameter or an array of objects.
 
-    When the function returns, call \a callback with a single argument that is the return value. The
-    \a callback argument is optional, if set to \c undefined (the default), the return value will be
-    discarded. If the function fails \a errorCallback is called if it is not set to \c undefined
-    (the default).
+    A method with the D-Bus signature \c{ssa{sv}}, so two string parameters and an array of dict
+    can be called like this:
+
+    \code
+    typedCall("setInventory", [
+        { "type" : 's', "value": "apple" },
+        { "type" : 's', "value": "banana" },
+        { "type" : 'a{sv}',
+          "value": [ { "name": "rose", "color": "red", "hasThorns": true, "count": 3 } ],
+        },
+    ])
+    \endcode
+
+    When the function returns, \a callback is called with the method reply message as a single argument.
+    If the function fails, \a errorCallback is called with two parameters, the
+    error name (e.g. \c org.freedesktop.DBus.Error.InvalidArgs) and the error
+    message ("Failed to create method call (Invalid argument)").
+
+    Both callback arguments are optional, if set to \c undefined (the default),
+    the return value and/or error messages will be discarded.
+
 */
 bool DeclarativeDBusInterface::typedCall(const QString &method, const QJSValue &arguments,
                                          const QJSValue &callback,
