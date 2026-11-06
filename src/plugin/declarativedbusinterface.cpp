@@ -935,6 +935,10 @@ void DeclarativeDBusInterface::signalHandler(const QDBusMessage &message)
 
     QGenericArgument args[10];
 
+    QMetaMethod method = m_signals.value(message.member());
+    if (!method.isValid())
+        return;
+
     for (int i = 0; i < qMin(arguments.length(), 10); ++i) {
         const QVariant &tmp = arguments.at(i);
         normalized.append(NemoDBus::demarshallDBusArgument(tmp));
@@ -943,15 +947,16 @@ void DeclarativeDBusInterface::signalHandler(const QDBusMessage &message)
     for (int i = 0; i < normalized.count(); ++i) {
         const QVariant &arg = normalized.at(i);
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-        args[i] = QGenericArgument(QMetaType(arg.metaType()).name(), arg.data());
+        // An untyped parameter of a QML function is a QVariant, and invoke()
+        // does not unwrap one for it: only a typed parameter takes the value.
+        if (method.parameterMetaType(i) == QMetaType::fromType<QVariant>())
+            args[i] = QGenericArgument("QVariant", &arg);
+        else
+            args[i] = QGenericArgument(QMetaType(arg.metaType()).name(), arg.data());
 #else
         args[i] = Q_ARG(QVariant, arg);
 #endif
     }
-
-    QMetaMethod method = m_signals.value(message.member());
-    if (!method.isValid())
-        return;
 
     method.invoke(this, args[0], args[1], args[2], args[3], args[4],
                   args[5], args[6], args[7], args[8], args[9]);
