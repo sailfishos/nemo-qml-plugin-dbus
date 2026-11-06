@@ -102,7 +102,7 @@ QVariant demarshallDBusArgument(const QVariant &val, int depth)
             lst << QVariant::fromValue(static_cast<quint8>(arr[i]));
         res = QVariant::fromValue(lst);
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-    } else if (type == val.typeId()) {
+    } else if (type < QMetaType::User) {
 #else
     } else if (type == val.type()) {
 #endif
